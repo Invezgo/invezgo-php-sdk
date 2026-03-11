@@ -418,4 +418,18 @@ class InvezgoClient
 
         return $this->services['health'];
     }
+
+    /**
+     * Get Alerts service
+     *
+     * @return Service\AlertsService
+     */
+    public function alerts(): Service\AlertsService
+    {
+        if (!isset($this->services['alerts'])) {
+            $this->services['alerts'] = new Service\AlertsService($this);
+        }
+
+        return $this->services['alerts'];
+    }
 }

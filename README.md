@@ -51,68 +51,226 @@ You need an API key to use this SDK. Get your API key from [Invezgo API Settings
 
 ### Analysis Service - Data Saham Indonesia
 
-#### Get Stock List
+#### List Endpoints
 
 ```php
+// Get list of all stocks
 $stocks = $client->analysis()->getStockList();
-// Returns: [{"code":"BBCA","name":"Bank Central Asia","logo":"..."}, ...]
+
+// Get list of all brokers
+$brokers = $client->analysis()->getBrokerList();
+
+// Get list of all indexes
+$indexes = $client->analysis()->getIndexList();
 ```
 
-#### Get Company Information
+#### Company Information
 
 ```php
+// Get company information
 $info = $client->analysis()->information('BBCA');
 ```
 
-#### Get Top Gainer & Loser
+#### Top Gainer & Loser
 
 ```php
+// Get top gainer and loser for a specific date
 $topChange = $client->analysis()->topChange('2024-12-30');
 ```
 
-#### Get Stock Chart
+#### Top Foreign Flow
 
 ```php
+// Get top foreign accumulation and distribution
+$topForeign = $client->analysis()->topForeign('2024-12-30');
+```
+
+#### Top BDM Flow
+
+```php
+// Get top bandarmologi accumulation and distribution
+$topAccumulation = $client->analysis()->topAccumulation('2024-12-30');
+```
+
+#### Top Ritel Flow
+
+```php
+// Get top retail accumulation and distribution
+$topRitel = $client->analysis()->topRitel('2024-12-30');
+```
+
+#### Stock Charts
+
+```php
+// Get stock chart (OHLCV data)
 $chart = $client->analysis()->getAdvanceChart('BBCA', '2024-12-01', '2024-12-30');
+
+// Get index chart
+$indexChart = $client->analysis()->getIndexChart('COMPOSITE', '2024-12-01', '2024-12-30');
+
+// Get indicator chart (bdm, foreign, ritel, ratio)
+$indicatorChart = $client->analysis()->getIndicatorChart('BBCA', 'bdm', '2024-12-01', '2024-12-30');
 ```
 
-#### Get Intraday Chart
+#### Intraday Data
 
 ```php
+// Get intraday chart
 $intraday = $client->analysis()->getIntradayChart('BBCA', 'RG');
+
+// Get intraday data
+$intradayData = $client->analysis()->getIntradayData('BBCA', 'RG');
+
+// Get intraday index data
+$intradayIndex = $client->analysis()->getIntradayIndex('COMPOSITE', 'RG');
+
+// Get order book
+$orderBook = $client->analysis()->getOrderBook('BBCA', 'RG');
 ```
 
-#### Get Financial Statement
+#### Sector Analysis
 
 ```php
-// Balance Sheet (BS), Income Statement (IS), Cash Flow (CF)
-// Period: FY (Annual), Q (Quarterly), Q1-Q4 (Specific Quarter)
-$financial = $client->analysis()->financialStatement('BBCA', 'BS', 'Q', 10);
+// Sector stalker - track sector/index movement
+$sectorStalker = $client->analysis()->sectorStalker('2024-12-01', '2024-12-30', 'COMPOSITE');
+
+// Sector rotation chart
+$sectorRotation = $client->analysis()->sectorRotation('2024-12-01', '2024-12-30', 'COMPOSITE');
 ```
 
-#### Get Broker Summary
+#### Broker Analysis
 
 ```php
-$summary = $client->analysis()->summaryStock(
-    'BBCA',                    // Stock code
-    '2024-12-01',              // From date
-    '2024-12-30',              // To date
-    'all',                     // Investor: all, f (foreign), d (domestic)
-    'RG'                       // Market: RG (Regular), NG (Negotiated), TN (Cash)
-);
+// Broker stalker - track broker activity on specific stock
+$brokerStalker = $client->analysis()->brokerStalker('AG', 'BBCA', '2024-12-01', '2024-12-30', 'all', 'RG', 'value');
+
+// Broker stalker list - get all stocks traded by a broker
+$brokerStalkerList = $client->analysis()->brokerStalkerList('AG', '2024-12-01', '2024-12-30', 'all', 'value', 'RG');
+
+// Broker summary per stock
+$summaryStock = $client->analysis()->summaryStock('BBCA', '2024-12-01', '2024-12-30', 'all', 'RG');
+
+// Broker summary per broker
+$summaryBroker = $client->analysis()->summaryBroker('AG', '2024-12-01', '2024-12-30', 'all', 'RG');
+
+// Broker summary chart for stock
+$summaryStockChart = $client->analysis()->summaryStockChart('BBCA', '2024-12-01', '2024-12-30', 'volume', 'RG');
+
+// Broker summary chart for broker
+$summaryBrokerChart = $client->analysis()->summaryBrokerChart('AG', '2024-12-01', '2024-12-30', 'volume', 'RG');
 ```
 
-#### Get Shareholder Data
+#### Inventory Charts
 
 ```php
-// Get shareholder composition
+// Inventory chart for stock
+$inventoryStock = $client->analysis()->inventoryStockChart('BBCA', '2024-12-01', '2024-12-30', 'val', 'all', 5, 'RG');
+
+// Inventory chart for broker
+$inventoryBroker = $client->analysis()->inventoryBrokerChart('AG', '2024-12-01', '2024-12-30', 'val', 'all', 5, 'RG');
+```
+
+#### Momentum & Realtime Analysis
+
+```php
+// Momentum chart
+$momentum = $client->analysis()->momentumChart('BBCA', '2024-12-30', 60, 'value');
+
+// Intraday inventory chart
+$intradayInventory = $client->analysis()->intradayInventoryChart('BBCA', '2024-12-30', 60, 'value', 10, 'ALL', 'ALL', 'RG');
+
+// Sankey chart (crossing visualization)
+$sankey = $client->analysis()->sankeyChart('BBCA', '2024-12-30', 'value', 'ALL', 'ALL', 'RG');
+
+// Price table
+$priceTable = $client->analysis()->priceTable('BBCA', '2024-12-30');
+
+// Time table
+$timeTable = $client->analysis()->timeTable('BBCA', '2024-12-30', 60);
+```
+
+#### Price History
+
+```php
+// Price diary (daily price changes)
+$priceDiary = $client->analysis()->priceDiary('BBCA');
+
+// Price seasonality (monthly price changes)
+$priceSeasonality = $client->analysis()->priceSeasonality('BBCA', 12);
+```
+
+#### Shareholder Data
+
+```php
+// Shareholder composition
 $shareholder = $client->analysis()->shareholder('BBCA');
 
-// Get KSEI shareholder data
-$ksei = $client->analysis()->shareholderKSEI('BBCA', 6); // 6 months
+// Shareholder detail (5%)
+$shareholderDetail = $client->analysis()->shareholderDetail('BBCA', 'SHAREHOLDER NAME');
 
-// Get insider trading
-$insider = $client->analysis()->insider('2024-12-01', '2024-12-30', 10, 1);
+// Shareholder detail one (1%)
+$shareholderDetailOne = $client->analysis()->shareholderDetailOne('BBCA', 'SHAREHOLDER NAME');
+
+// Shareholder number
+$shareholderNumber = $client->analysis()->shareholderNumber('BBCA');
+
+// KSEI shareholder data
+$ksei = $client->analysis()->shareholderKSEI('BBCA', 6);
+
+// Shareholder relation graph
+$shareholderRelation = $client->analysis()->shareholderRelation('BBCA', null, 3);
+```
+
+#### Insider Trading
+
+```php
+// Shareholder above 5%
+$shareholderAbove = $client->analysis()->shareholderAbove('2024-12-01', '2024-12-30', 1, 10, 'BBCA');
+
+// Shareholder above 5% chart
+$shareholderAboveChart = $client->analysis()->shareholderAboveChart('BBCA', 'SHAREHOLDER NAME');
+
+// Shareholder one (1%)
+$shareholderOne = $client->analysis()->shareholderOne('2024-12-01', '2024-12-30', 1, 10, 'BBCA');
+
+// Shareholder one chart (1%)
+$shareholderOneChart = $client->analysis()->shareholderOneChart('BBCA', 'SHAREHOLDER NAME');
+
+// Insider trading data
+$insider = $client->analysis()->insider('2024-12-01', '2024-12-30', 1, 10, null, 'BBCA');
+
+// Insider chart
+$insiderChart = $client->analysis()->insiderChart('BBCA', 'SHAREHOLDER NAME');
+```
+
+#### Financial Statements
+
+```php
+// Financial statement (BS = Balance Sheet, IS = Income Statement, CF = Cash Flow)
+// Period: FY (Annual), Q (Quarterly), Q1-Q4 (Specific Quarter)
+$financial = $client->analysis()->financialStatement('BBCA', 'BS', 'Q', 10);
+
+// Financial statement chart
+$financialChart = $client->analysis()->financialStatementChart('BBCA', 'BS', 'Q', 'ACCOUNT_ID', 10);
+
+// Key statistics
+$keystat = $client->analysis()->keystat('BBCA', 'Q', 10);
+
+// Key statistics chart
+$keystatChart = $client->analysis()->keystatChart('BBCA', 'Q', 'ROE', 10);
+```
+
+#### Corporate Action Calendar
+
+```php
+// Get corporate action calendar
+$calendar = $client->analysis()->calendar();
+
+// Filter by stock code
+$calendarByStock = $client->analysis()->calendar('BBCA');
+
+// Filter by type (IPO, PUBLIC_EXPOSE, REVERSE, RIGHT, RUPS_RESULT, RUPS_SCHEDULE, SPLIT, WARRANT, BONUS, CONVERTION, DIVIDEND)
+$calendarByType = $client->analysis()->calendar(null, 'DIVIDEND', 1, 20);
 ```
 
 ### Watchlists Service - Personal
@@ -121,14 +279,31 @@ $insider = $client->analysis()->insider('2024-12-01', '2024-12-30', 10, 1);
 // Get watchlist groups
 $groups = $client->watchlists()->listGroupWatchlist();
 
-// Get watchlists
+// Get watchlists by group
 $watchlists = $client->watchlists()->listWatchlist('group-id');
 
 // Add to watchlist
 $result = $client->watchlists()->addWatchlist([
     'stock_code' => 'BBCA',
     'group_id' => 'group-id',
-    // ... other fields
+]);
+
+// Update watchlist
+$result = $client->watchlists()->updateWatchlist('watchlist-id', [
+    'stock_code' => 'BBCA',
+]);
+
+// Update watchlist note
+$result = $client->watchlists()->updateNoteWatchlist('watchlist-id', [
+    'note' => 'My note',
+]);
+
+// Delete watchlist
+$result = $client->watchlists()->deleteWatchlists(['ids' => ['id1', 'id2']]);
+
+// Add watchlist group
+$result = $client->watchlists()->addGroupWatchlist([
+    'name' => 'My Watchlist',
 ]);
 ```
 
@@ -144,11 +319,23 @@ $result = $client->journals()->addTransaction([
     'transaction_type' => 'buy',
     'price' => 10000,
     'quantity' => 100,
-    // ... other fields
 ]);
 
-// Get summary
+// Get transactions summary
 $summary = $client->journals()->getTransactionsSummary();
+
+// Extract journal from file
+$result = $client->journals()->extractInformation([
+    'file' => 'file-content',
+]);
+
+// Delete journals
+$result = $client->journals()->deleteWatchlists(['ids' => ['id1', 'id2']]);
+
+// Update journal note
+$result = $client->journals()->updateNoteWatchlist('journal-id', [
+    'note' => 'My note',
+]);
 ```
 
 ### Portfolios Service - Personal
@@ -161,17 +348,62 @@ $portfolios = $client->portfolios()->listPortfolio();
 $summary = $client->portfolios()->portfolioSummary();
 ```
 
+### Trades Service - Personal
+
+```php
+// List realized transactions
+$trades = $client->trades()->listTransactions();
+
+// Get transactions summary
+$summary = $client->trades()->getTransactionsSummary();
+
+// Get summary chart
+$chart = $client->trades()->getSummaryChart();
+
+// Delete trades
+$result = $client->trades()->deleteWatchlists(['ids' => ['id1', 'id2']]);
+
+// Update trade note
+$result = $client->trades()->updateNoteWatchlist('trade-id', [
+    'note' => 'My note',
+]);
+```
+
 ### AI Service - AI Chat
 
 ```php
 // AI analysis for KSEI shareholder
 $analysis = $client->ai()->shareholderKSEI('BBCA');
 
+// AI analysis for inventory chart stock
+$analysis = $client->ai()->inventoryStockChart('BBCA', '2024-12-01', '2024-12-30', 'val', 'all', '5', 'RG', '');
+
 // AI analysis for news
 $news = $client->ai()->news('BBCA');
 
 // AI analysis for broker summary
 $analysis = $client->ai()->brokerSummary('BBCA', '2024-12-01', '2024-12-30', 'all', 'RG');
+
+// AI analysis for insider shareholder
+$analysis = $client->ai()->insider('BBCA', 'NAME', '2024-12-01', '2024-12-30', '1', '10');
+
+// AI analysis for shareholder above 5%
+$analysis = $client->ai()->shareholderAbove('BBCA', 'BROKER', 'NAME', '2024-12-01', '2024-12-30', '1', '10');
+
+// AI analysis for intraday inventory
+$analysis = $client->ai()->intradayInventory('BBCA', 60, 'value', 10, 'ALL', 'ALL', '', 'RG');
+
+// AI analysis for sankey chart
+$analysis = $client->ai()->sankeyChart('BBCA', 'value', 'ALL', 'ALL', 'RG');
+
+// AI analysis for shareholder table
+$analysis = $client->ai()->shareholderTable('BBCA');
+
+// AI analysis for financial statement
+$analysis = $client->ai()->financialStatement('BBCA', 'BS', 'Q', '10');
+
+// AI analysis for key statistics
+$analysis = $client->ai()->keystat('BBCA', 'Q', '10');
 ```
 
 ### Search Service
@@ -196,8 +428,20 @@ $profile = $client->profile()->userDetails('username');
 // Get user posts
 $posts = $client->profile()->userPosts('username', '1', '10');
 
+// Get user posts by category
+$posts = $client->profile()->categoryPosts('username', 'category', '1', '10');
+
 // Get user watchlist
 $watchlist = $client->profile()->listWatchlist('username');
+
+// Get user followers
+$followers = $client->profile()->followUser('username');
+
+// Get user following
+$following = $client->profile()->getFollowingUser('username');
+
+// Get user memberships
+$memberships = $client->profile()->getMemberships('username');
 ```
 
 ### Posts Service
@@ -212,8 +456,82 @@ $posts = $client->posts()->getCategoryPosts('category');
 // Get stock posts
 $posts = $client->posts()->getStockPosts('BBCA');
 
+// Get stock posts by category
+$posts = $client->posts()->getStockCategoryPosts('BBCA', 'category');
+
 // Get post detail
 $post = $client->posts()->getPostById('post-id');
+
+// Get post comments
+$comments = $client->posts()->getComment('post-id');
+
+// Get liked posts
+$liked = $client->posts()->getLike();
+
+// Get favorite posts
+$favorites = $client->posts()->getFavorite();
+
+// Get post voters
+$voters = $client->posts()->getVoters('post-id');
+```
+
+### Membership Service
+
+```php
+// Get list of memberships
+$memberships = $client->membership()->getMemberships();
+
+// Add new membership
+$result = $client->membership()->addMembership([
+    'plan_id' => 'plan-id',
+]);
+
+// Get membership scope
+$scope = $client->membership()->getScope();
+
+// Get transaction membership list
+$transactions = $client->membership()->getTransactionMembership();
+
+// Update membership
+$result = $client->membership()->changeMembership('membership-id', [
+    'status' => 'active',
+]);
+
+// Delete membership
+$result = $client->membership()->deleteMembership('membership-id');
+```
+
+### Screener Service
+
+```php
+// Get list of screener presets
+$presets = $client->screener()->list();
+
+// Save screener preset
+$result = $client->screener()->save([
+    'name' => 'My Screener',
+    'filters' => [],
+]);
+
+// Update screener preset
+$result = $client->screener()->update('screener-id', [
+    'name' => 'Updated Screener',
+]);
+
+// Delete screener preset
+$result = $client->screener()->delete('screener-id');
+
+// Run screener
+$results = $client->screener()->screen([
+    'formula' => 'prev < close',
+]);
+```
+
+### Recommendation Service
+
+```php
+// Get user recommendations
+$recommendations = $client->recommendation()->userRecommendations();
 ```
 
 ### Health Service
@@ -227,6 +545,32 @@ $dbStatus = $client->health()->checkDatabase();
 
 // Full check
 $fullStatus = $client->health()->fullCheck();
+```
+
+### Alerts Service - Live Alert
+
+```php
+// Get list of alerts
+$alerts = $client->alerts()->list();
+
+// Create new alert
+$result = $client->alerts()->create([
+    'formula' => 'prev < close',
+    'name' => 'My Alert',
+]);
+
+// Test alert formula
+$result = $client->alerts()->test([
+    'formula' => 'prev < close',
+]);
+
+// Update alert
+$result = $client->alerts()->update('alert-id', [
+    'formula' => 'prev > close',
+]);
+
+// Delete alert
+$result = $client->alerts()->delete('alert-id');
 ```
 
 ## Error Handling
@@ -312,18 +656,19 @@ class StockController extends Controller
 
 ## Available Services
 
-- **AnalysisService** - Data Saham Indonesia (stocks, charts, financials, shareholders, etc.)
+- **AnalysisService** - Data Saham Indonesia (stocks, charts, financials, shareholders, brokers, sectors, etc.)
 - **WatchlistsService** - Personal watchlist management
 - **JournalsService** - Journal transaction management
 - **PortfoliosService** - Portfolio management
+- **TradesService** - Realized trades management
 - **AiService** - AI-powered analysis
 - **SearchService** - Search stocks and users
 - **ProfileService** - User profile operations
 - **MembershipService** - Membership/subscription management
 - **PostsService** - Posts and content
 - **RecommendationService** - User recommendations
-- **TradesService** - Realized trades management
 - **ScreenerService** - Stock screener
+- **AlertsService** - Live alerts for stock conditions
 - **HealthService** - API health checks
 
 ## Response Format
@@ -349,12 +694,7 @@ MIT License. See [LICENSE](LICENSE) file for details.
 
 ### 1.0.0
 - Initial release
-- Full API coverage
+- Full API coverage for Indonesia Stock Data
 - All services implemented
 - Exception handling
 - Laravel integration support
-
-## Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
-

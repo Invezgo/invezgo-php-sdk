@@ -22,16 +22,20 @@ class ProfileService extends BaseService
      * Get user posts
      *
      * @param string $username Username
-     * @param string $page Page number
-     * @param string $limit Limit
+     * @param string|null $page Page number
+     * @param string|null $limit Limit
      * @return array
      */
-    public function userPosts(string $username, string $page, string $limit): array
+    public function userPosts(string $username, ?string $page = null, ?string $limit = null): array
     {
-        return $this->client->get("/profile/posts/{$username}", [
-            'page' => $page,
-            'limit' => $limit,
-        ]);
+        $params = [];
+        if ($page !== null) {
+            $params['page'] = $page;
+        }
+        if ($limit !== null) {
+            $params['limit'] = $limit;
+        }
+        return $this->client->get("/profile/posts/{$username}", $params);
     }
 
     /**
@@ -39,16 +43,20 @@ class ProfileService extends BaseService
      *
      * @param string $username Username
      * @param string $category Category
-     * @param string $page Page number
-     * @param string $limit Limit
+     * @param string|null $page Page number
+     * @param string|null $limit Limit
      * @return array
      */
-    public function categoryPosts(string $username, string $category, string $page, string $limit): array
+    public function categoryPosts(string $username, string $category, ?string $page = null, ?string $limit = null): array
     {
-        return $this->client->get("/profile/posts/{$username}/{$category}", [
-            'page' => $page,
-            'limit' => $limit,
-        ]);
+        $params = [];
+        if ($page !== null) {
+            $params['page'] = $page;
+        }
+        if ($limit !== null) {
+            $params['limit'] = $limit;
+        }
+        return $this->client->get("/profile/posts/{$username}/{$category}", $params);
     }
 
     /**
@@ -95,4 +103,3 @@ class ProfileService extends BaseService
         return $this->client->get("/profile/membership/{$username}");
     }
 }
-

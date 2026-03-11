@@ -30,9 +30,33 @@ class WatchlistsService extends BaseService
     }
 
     /**
+     * Update watchlist
+     *
+     * @param string $id Watchlist ID
+     * @param array $data Update data
+     * @return array
+     */
+    public function updateWatchlist(string $id, array $data): array
+    {
+        return $this->client->put("/watchlists/{$id}", $data);
+    }
+
+    /**
+     * Update watchlist note
+     *
+     * @param string $id Watchlist ID
+     * @param array $data Note data
+     * @return array
+     */
+    public function updateNoteWatchlist(string $id, array $data): array
+    {
+        return $this->client->patch("/watchlists/{$id}", $data);
+    }
+
+    /**
      * Delete watchlist
      *
-     * @param array $data Delete data
+     * @param array $data Delete data with ids array
      * @return array
      */
     public function deleteWatchlists(array $data): array
@@ -62,27 +86,25 @@ class WatchlistsService extends BaseService
     }
 
     /**
-     * Update watchlist
+     * Update watchlist group
      *
-     * @param string $id Watchlist ID
-     * @param array $data Update data
+     * @param string $id Group ID
+     * @param array $data Group data
      * @return array
      */
-    public function updateWatchlist(string $id, array $data): array
+    public function updateGroupWatchlist(string $id, array $data): array
     {
-        return $this->client->put("/watchlists/{$id}", $data);
+        return $this->client->put("/watchlists/group/{$id}", $data);
     }
 
     /**
-     * Update watchlist note
+     * Delete watchlist group
      *
-     * @param string $id Watchlist ID
-     * @param array $data Note data
+     * @param string $id Group ID
      * @return array
      */
-    public function updateNoteWatchlist(string $id, array $data): array
+    public function deleteGroupWatchlist(string $id): array
     {
-        return $this->client->patch("/watchlists/{$id}", $data);
+        return $this->client->delete("/watchlists/group/{$id}");
     }
 }
-
