@@ -1080,4 +1080,36 @@ class AnalysisService extends BaseService
 
         return $this->client->get('/analysis/calendar', $params);
     }
+
+    /**
+     * Get order queue (order tracking) for a stock at a specific price, side, page, and limit.
+     *
+     * @param string $code Stock symbol
+     * @param string $price Stock price level to track
+     * @param string $side Transaction side (BUY / SELL)
+     * @param int|null $page Queue data page (default: 0)
+     * @param int|null $limit Limit on the number of queue entries to display (maximum 50, default: 50)
+     * @return array
+     */
+    public function orderQueue(
+        string $code,
+        string $price,
+        string $side,
+        ?int $page = null,
+        ?int $limit = null
+    ): array {
+        $params = [
+            'price' => $price,
+            'side' => $side,
+        ];
+
+        if ($page !== null) {
+            $params['page'] = $page;
+        }
+        if ($limit !== null) {
+            $params['limit'] = $limit;
+        }
+
+        return $this->client->get("/analysis/queue/{$code}", $params);
+    }
 }
