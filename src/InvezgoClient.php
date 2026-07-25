@@ -51,6 +51,7 @@ class InvezgoClient
             'headers' => [
                 'Authorization' => 'Bearer ' . $this->apiKey,
                 'Content-Type' => 'application/json',
+                'User-Agent' => 'Invezgo PHP SDK',
                 'Accept' => 'application/json',
             ],
         ]);
