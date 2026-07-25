@@ -187,6 +187,9 @@ $priceTable = $client->analysis()->priceTable('BBCA', '2024-12-30');
 
 // Time table
 $timeTable = $client->analysis()->timeTable('BBCA', '2024-12-30', 60);
+
+// Running trade realtime/historical transaction data
+$runningTrade = $client->analysis()->runningTrade('BBCA', '2026-03-25', 1, 50, 'ALL', 'TIME', 100, 10000, 'RG');
 ```
 
 #### Price History
@@ -573,6 +576,20 @@ $result = $client->alerts()->update('alert-id', [
 $result = $client->alerts()->delete('alert-id');
 ```
 
+### Batch Service - Batch Stock Data API
+
+```php
+// Get batch order book data for multiple stocks (separated by pipe or array)
+$orderBookBatch = $client->batch()->getOrderBook(['BBCA', 'GOTO', 'HUMI'], 'RG');
+// Or using pipe string: $client->batch()->getOrderBook('BBCA|GOTO|HUMI', 'RG');
+
+// Get batch intraday data for multiple stocks
+$intradayBatch = $client->batch()->getIntradayData(['BBCA', 'GOTO', 'HUMI'], 'RG');
+
+// Get batch intraday index data for multiple indexes
+$intradayIndexBatch = $client->batch()->getIntradayIndex(['COMPOSITE', 'LQ45', 'IDX30']);
+```
+
 ## Error Handling
 
 The SDK throws specific exceptions for different error scenarios:
@@ -669,11 +686,12 @@ class StockController extends Controller
 - **RecommendationService** - User recommendations
 - **ScreenerService** - Stock screener
 - **AlertsService** - Live alerts for stock conditions
+- **BatchService** - Batch stock data (order book, intraday data, intraday index)
 - **HealthService** - API health checks
 
 ## Response Format
 
-All methods return arrays containing the API response data. The structure depends on the specific endpoint. Please refer to the [Invezgo API Documentation](https://invezgo.com) for detailed response structures.
+All methods return arrays containing the API response data. The structure depends on the specific endpoint. Please refer to the [Invezgo API Documentation](https://docs.invezgo.com/api) for detailed response structures.
 
 ## Rate Limiting
 
@@ -683,7 +701,7 @@ The API has rate limits based on your subscription package. When rate limits are
 
 - **Website:** https://invezgo.com
 - **Email:** admin@invezgo.com
-- **API Documentation:** https://invezgo.com
+- **API Documentation:** https://docs.invezgo.com/api
 - **API Key Settings:** https://invezgo.com/id/setting/api
 
 ## License

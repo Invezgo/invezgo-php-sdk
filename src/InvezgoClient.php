@@ -432,4 +432,18 @@ class InvezgoClient
 
         return $this->services['alerts'];
     }
+
+    /**
+     * Get Batch service
+     *
+     * @return Service\BatchService
+     */
+    public function batch(): Service\BatchService
+    {
+        if (!isset($this->services['batch'])) {
+            $this->services['batch'] = new Service\BatchService($this);
+        }
+
+        return $this->services['batch'];
+    }
 }

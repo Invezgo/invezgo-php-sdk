@@ -1112,4 +1112,140 @@ class AnalysisService extends BaseService
 
         return $this->client->get("/analysis/queue/{$code}", $params);
     }
+
+    /**
+     * Get realtime/historical running trade transaction data for a specific stock code.
+     *
+     * @param string $code Stock code (4-6 characters)
+     * @param string|array $date Transaction date (format YYYY-MM-DD) or parameters array
+     * @param int|null $page Pagination page (default: 1)
+     * @param int|null $limit Data limit per page (maximum 150, default: 50)
+     * @param string|null $type Transaction type filter (ALL, BUY, SELL - default: ALL)
+     * @param string|null $orderby Sort field (TIME, PRICE, VOLUME - default: TIME)
+     * @param int|null $minimum Minimum transaction volume filter (in shares)
+     * @param int|null $maximum Maximum transaction volume filter (in shares)
+     * @param string|null $market Market filter (ALL, NG, RG, TN - default: ALL)
+     * @param float|int|null $pricefrom Minimum price filter
+     * @param float|int|null $priceto Maximum price filter
+     * @param string|null $timefrom Minimum transaction time filter (format HH:mm or HH:mm:ss)
+     * @param string|null $timeto Maximum transaction time filter (format HH:mm or HH:mm:ss)
+     * @param string|null $sort Sort direction (ASC, DESC - default: ASC)
+     * @return array
+     */
+    public function runningTrade(
+        string $code,
+        $date,
+        ?int $page = null,
+        ?int $limit = null,
+        ?string $type = null,
+        ?string $orderby = null,
+        ?int $minimum = null,
+        ?int $maximum = null,
+        ?string $market = null,
+        $pricefrom = null,
+        $priceto = null,
+        ?string $timefrom = null,
+        ?string $timeto = null,
+        ?string $sort = null
+    ): array {
+        if (is_array($date)) {
+            $params = $date;
+        } else {
+            $params = [
+                'date' => $date,
+            ];
+
+            if ($page !== null) {
+                $params['page'] = $page;
+            }
+            if ($limit !== null) {
+                $params['limit'] = $limit;
+            }
+            if ($type !== null) {
+                $params['type'] = $type;
+            }
+            if ($orderby !== null) {
+                $params['orderby'] = $orderby;
+            }
+            if ($minimum !== null) {
+                $params['minimum'] = $minimum;
+            }
+            if ($maximum !== null) {
+                $params['maximum'] = $maximum;
+            }
+            if ($market !== null) {
+                $params['market'] = $market;
+            }
+            if ($pricefrom !== null) {
+                $params['pricefrom'] = $pricefrom;
+            }
+            if ($priceto !== null) {
+                $params['priceto'] = $priceto;
+            }
+            if ($timefrom !== null) {
+                $params['timefrom'] = $timefrom;
+            }
+            if ($timeto !== null) {
+                $params['timeto'] = $timeto;
+            }
+            if ($sort !== null) {
+                $params['sort'] = $sort;
+            }
+        }
+
+        return $this->client->get("/analysis/running-trade/{$code}", $params);
+    }
+
+    /**
+     * Alias for runningTrade.
+     *
+     * @param string $code Stock code (4-6 characters)
+     * @param string|array $date Transaction date (format YYYY-MM-DD) or parameters array
+     * @param int|null $page Pagination page
+     * @param int|null $limit Data limit per page
+     * @param string|null $type Transaction type filter
+     * @param string|null $orderby Sort field
+     * @param int|null $minimum Minimum volume filter
+     * @param int|null $maximum Maximum volume filter
+     * @param string|null $market Market filter
+     * @param float|int|null $pricefrom Minimum price filter
+     * @param float|int|null $priceto Maximum price filter
+     * @param string|null $timefrom Minimum time filter
+     * @param string|null $timeto Maximum time filter
+     * @param string|null $sort Sort direction
+     * @return array
+     */
+    public function stockRunningTrade(
+        string $code,
+        $date,
+        ?int $page = null,
+        ?int $limit = null,
+        ?string $type = null,
+        ?string $orderby = null,
+        ?int $minimum = null,
+        ?int $maximum = null,
+        ?string $market = null,
+        $pricefrom = null,
+        $priceto = null,
+        ?string $timefrom = null,
+        ?string $timeto = null,
+        ?string $sort = null
+    ): array {
+        return $this->runningTrade(
+            $code,
+            $date,
+            $page,
+            $limit,
+            $type,
+            $orderby,
+            $minimum,
+            $maximum,
+            $market,
+            $pricefrom,
+            $priceto,
+            $timefrom,
+            $timeto,
+            $sort
+        );
+    }
 }
