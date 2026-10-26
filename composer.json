@@ -1,0 +1,56 @@
+{
+    "name": "invezgo/sdk",
+    "description": "Official PHP SDK for the Invezgo API - Indonesia stock market data (IDX/BEI), fully typed, with LRU cache and API key rotation",
+    "version": "2.0.0",
+    "type": "library",
+    "keywords": [
+        "invezgo",
+        "sdk",
+        "api",
+        "saham",
+        "indonesia",
+        "stock",
+        "idx",
+        "bei",
+        "investasi",
+        "laravel"
+    ],
+    "homepage": "https://invezgo.com",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Invezgo",
+            "email": "admin@invezgo.com",
+            "homepage": "https://invezgo.com"
+        }
+    ],
+    "require": {
+        "php": "^8.1",
+        "ext-json": "*",
+        "guzzlehttp/guzzle": "^7.0"
+    },
+    "require-dev": {
+        "phpstan/phpstan": "^2.0",
+        "phpunit/phpunit": "^10.5"
+    },
+    "autoload": {
+        "psr-4": {
+            "Invezgo\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Invezgo\\Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "test": "phpunit",
+        "analyse": "phpstan analyse --memory-limit=1G"
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true,
+    "config": {
+        "sort-packages": true,
+        "preferred-install": "dist"
+    }
+}
