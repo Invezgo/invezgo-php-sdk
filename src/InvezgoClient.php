@@ -34,7 +34,7 @@ use Invezgo\Resource\WatchlistsResource;
  */
 final class InvezgoClient
 {
-    public const VERSION = '2.0.0';
+    public const VERSION = '2.1.0';
 
     public const DEFAULT_BASE_URL = 'https://api.invezgo.com';
 

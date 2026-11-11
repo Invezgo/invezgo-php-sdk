@@ -15,88 +15,248 @@ final class ShareholderClassifyTableResponse implements \JsonSerializable
 {
     /**
      * @param string $code Stock code
-     * @param string $bk Shares held by Bank investors (shares) (numeric string)
-     * @param string $gv Shares held by Government investors (shares) (numeric string)
-     * @param string $pe Shares held by Private Equity investors (shares) (numeric string)
-     * @param string $tb Shares held by Trustee Bank investors (shares) (numeric string)
-     * @param string $vc Shares held by Venture Capital investors (shares) (numeric string)
-     * @param string $pb Shares held by Private Bank investors (shares) (numeric string)
-     * @param string $ef Shares held by Exchange Traded Fund (ETF) investors (shares) (numeric string)
-     * @param string $im Shares held by Investment Manager investors (shares) (numeric string)
-     * @param string $ia Shares held by Investment Advisor investors (shares) (numeric string)
-     * @param string $br Shares held by Brokerage Firm investors (shares) (numeric string)
-     * @param string $hf Shares held by Hedge Fund investors (shares) (numeric string)
-     * @param string $sw Shares held by Sovereign Wealth Fund investors (shares) (numeric string)
-     * @param string $cm Shares held by Capital Market Supporting Institution investors (shares) (numeric string)
-     * @param string $cv Shares held by Commanditaire Vennootschap (CV) investors (shares) (numeric string)
-     * @param string $fm Shares held by Firm investors (shares) (numeric string)
-     * @param string $sa Shares held by Mutual Fund Selling Agent investors (shares) (numeric string)
-     * @param string $pp Shares held by Peer to Peer Lending investors (shares) (numeric string)
-     * @param string $ps Shares held by Permanent Establishment investors (shares) (numeric string)
-     * @param string $sp Shares held by Sole Proprietorship investors (shares) (numeric string)
-     * @param string $cr Shares held by Corporate investors (shares) (numeric string)
-     * @param string $as Shares held by Association / Social Organization investors (shares) (numeric string)
-     * @param string $so Shares held by State-Owned Enterprise (BUMN) investors (shares) (numeric string)
-     * @param string $cb Shares held by Central Bank investors (shares) (numeric string)
-     * @param string $oc Shares held by State-Owned Company investors (shares) (numeric string)
-     * @param string $dc Shares held by Diocese investors (shares) (numeric string)
-     * @param string $cn Shares held by Conference investors (shares) (numeric string)
-     * @param string $cg Shares held by Congregation investors (shares) (numeric string)
-     * @param string $cp Shares held by Cooperative investors (shares) (numeric string)
-     * @param string $io Shares held by International Organization investors (shares) (numeric string)
-     * @param string $pl Shares held by Political Party investors (shares) (numeric string)
-     * @param string $pt Shares held by Partnership investors (shares) (numeric string)
-     * @param string $ed Shares held by Educational Institution investors (shares) (numeric string)
-     * @param string $mf Shares held by Mutual Fund investors (shares) (numeric string)
-     * @param string $sc Shares held by Securities Company investors (shares) (numeric string)
-     * @param string $pf Shares held by Pension Fund investors (shares) (numeric string)
-     * @param string $ib Shares held by Financial Institution investors (shares) (numeric string)
-     * @param string $is Shares held by Insurance investors (shares) (numeric string)
-     * @param string $fd Shares held by Foundation investors (shares) (numeric string)
-     * @param string $in Shares held by Individual investors (shares) (numeric string)
+     * @param string $local_bk Shares held by domestic Bank investors (shares) (numeric string)
+     * @param string $foreign_bk Shares held by foreign Bank investors (shares) (numeric string)
+     * @param string $bk Shares held by Bank investors, local_bk + foreign_bk (shares) (numeric string)
+     * @param string $local_gv Shares held by domestic Government investors (shares) (numeric string)
+     * @param string $foreign_gv Shares held by foreign Government investors (shares) (numeric string)
+     * @param string $gv Shares held by Government investors, local_gv + foreign_gv (shares) (numeric string)
+     * @param string $local_pe Shares held by domestic Private Equity investors (shares) (numeric string)
+     * @param string $foreign_pe Shares held by foreign Private Equity investors (shares) (numeric string)
+     * @param string $pe Shares held by Private Equity investors, local_pe + foreign_pe (shares) (numeric string)
+     * @param string $local_tb Shares held by domestic Trustee Bank investors (shares) (numeric string)
+     * @param string $foreign_tb Shares held by foreign Trustee Bank investors (shares) (numeric string)
+     * @param string $tb Shares held by Trustee Bank investors, local_tb + foreign_tb (shares) (numeric string)
+     * @param string $local_vc Shares held by domestic Venture Capital investors (shares) (numeric string)
+     * @param string $foreign_vc Shares held by foreign Venture Capital investors (shares) (numeric string)
+     * @param string $vc Shares held by Venture Capital investors, local_vc + foreign_vc (shares) (numeric string)
+     * @param string $local_pb Shares held by domestic Private Bank investors (shares) (numeric string)
+     * @param string $foreign_pb Shares held by foreign Private Bank investors (shares) (numeric string)
+     * @param string $pb Shares held by Private Bank investors, local_pb + foreign_pb (shares) (numeric string)
+     * @param string $local_ef Shares held by domestic Exchange Traded Fund (ETF) investors (shares) (numeric string)
+     * @param string $foreign_ef Shares held by foreign Exchange Traded Fund (ETF) investors (shares) (numeric string)
+     * @param string $ef Shares held by Exchange Traded Fund (ETF) investors, local_ef + foreign_ef (shares) (numeric string)
+     * @param string $local_im Shares held by domestic Investment Manager investors (shares) (numeric string)
+     * @param string $foreign_im Shares held by foreign Investment Manager investors (shares) (numeric string)
+     * @param string $im Shares held by Investment Manager investors, local_im + foreign_im (shares) (numeric string)
+     * @param string $local_ia Shares held by domestic Investment Advisor investors (shares) (numeric string)
+     * @param string $foreign_ia Shares held by foreign Investment Advisor investors (shares) (numeric string)
+     * @param string $ia Shares held by Investment Advisor investors, local_ia + foreign_ia (shares) (numeric string)
+     * @param string $local_br Shares held by domestic Brokerage Firm investors (shares) (numeric string)
+     * @param string $foreign_br Shares held by foreign Brokerage Firm investors (shares) (numeric string)
+     * @param string $br Shares held by Brokerage Firm investors, local_br + foreign_br (shares) (numeric string)
+     * @param string $local_hf Shares held by domestic Hedge Fund investors (shares) (numeric string)
+     * @param string $foreign_hf Shares held by foreign Hedge Fund investors (shares) (numeric string)
+     * @param string $hf Shares held by Hedge Fund investors, local_hf + foreign_hf (shares) (numeric string)
+     * @param string $local_sw Shares held by domestic Sovereign Wealth Fund investors (shares) (numeric string)
+     * @param string $foreign_sw Shares held by foreign Sovereign Wealth Fund investors (shares) (numeric string)
+     * @param string $sw Shares held by Sovereign Wealth Fund investors, local_sw + foreign_sw (shares) (numeric string)
+     * @param string $local_cm Shares held by domestic Capital Market Supporting Institution investors (shares) (numeric string)
+     * @param string $foreign_cm Shares held by foreign Capital Market Supporting Institution investors (shares) (numeric string)
+     * @param string $cm Shares held by Capital Market Supporting Institution investors, local_cm + foreign_cm (shares) (numeric string)
+     * @param string $local_cv Shares held by domestic Commanditaire Vennootschap (CV) investors (shares) (numeric string)
+     * @param string $foreign_cv Shares held by foreign Commanditaire Vennootschap (CV) investors (shares) (numeric string)
+     * @param string $cv Shares held by Commanditaire Vennootschap (CV) investors, local_cv + foreign_cv (shares) (numeric string)
+     * @param string $local_fm Shares held by domestic Firm investors (shares) (numeric string)
+     * @param string $foreign_fm Shares held by foreign Firm investors (shares) (numeric string)
+     * @param string $fm Shares held by Firm investors, local_fm + foreign_fm (shares) (numeric string)
+     * @param string $local_sa Shares held by domestic Mutual Fund Selling Agent investors (shares) (numeric string)
+     * @param string $foreign_sa Shares held by foreign Mutual Fund Selling Agent investors (shares) (numeric string)
+     * @param string $sa Shares held by Mutual Fund Selling Agent investors, local_sa + foreign_sa (shares) (numeric string)
+     * @param string $local_pp Shares held by domestic Peer to Peer Lending investors (shares) (numeric string)
+     * @param string $foreign_pp Shares held by foreign Peer to Peer Lending investors (shares) (numeric string)
+     * @param string $pp Shares held by Peer to Peer Lending investors, local_pp + foreign_pp (shares) (numeric string)
+     * @param string $local_ps Shares held by domestic Permanent Establishment investors (shares) (numeric string)
+     * @param string $foreign_ps Shares held by foreign Permanent Establishment investors (shares) (numeric string)
+     * @param string $ps Shares held by Permanent Establishment investors, local_ps + foreign_ps (shares) (numeric string)
+     * @param string $local_sp Shares held by domestic Sole Proprietorship investors (shares) (numeric string)
+     * @param string $foreign_sp Shares held by foreign Sole Proprietorship investors (shares) (numeric string)
+     * @param string $sp Shares held by Sole Proprietorship investors, local_sp + foreign_sp (shares) (numeric string)
+     * @param string $local_cr Shares held by domestic Corporate investors (shares) (numeric string)
+     * @param string $foreign_cr Shares held by foreign Corporate investors (shares) (numeric string)
+     * @param string $cr Shares held by Corporate investors, local_cr + foreign_cr (shares) (numeric string)
+     * @param string $local_as Shares held by domestic Association / Social Organization investors (shares) (numeric string)
+     * @param string $foreign_as Shares held by foreign Association / Social Organization investors (shares) (numeric string)
+     * @param string $as Shares held by Association / Social Organization investors, local_as + foreign_as (shares) (numeric string)
+     * @param string $local_so Shares held by domestic State-Owned Enterprise (BUMN) investors (shares) (numeric string)
+     * @param string $foreign_so Shares held by foreign State-Owned Enterprise (BUMN) investors (shares) (numeric string)
+     * @param string $so Shares held by State-Owned Enterprise (BUMN) investors, local_so + foreign_so (shares) (numeric string)
+     * @param string $local_cb Shares held by domestic Central Bank investors (shares) (numeric string)
+     * @param string $foreign_cb Shares held by foreign Central Bank investors (shares) (numeric string)
+     * @param string $cb Shares held by Central Bank investors, local_cb + foreign_cb (shares) (numeric string)
+     * @param string $local_oc Shares held by domestic State-Owned Company investors (shares) (numeric string)
+     * @param string $foreign_oc Shares held by foreign State-Owned Company investors (shares) (numeric string)
+     * @param string $oc Shares held by State-Owned Company investors, local_oc + foreign_oc (shares) (numeric string)
+     * @param string $local_dc Shares held by domestic Diocese investors (shares) (numeric string)
+     * @param string $foreign_dc Shares held by foreign Diocese investors (shares) (numeric string)
+     * @param string $dc Shares held by Diocese investors, local_dc + foreign_dc (shares) (numeric string)
+     * @param string $local_cn Shares held by domestic Conference investors (shares) (numeric string)
+     * @param string $foreign_cn Shares held by foreign Conference investors (shares) (numeric string)
+     * @param string $cn Shares held by Conference investors, local_cn + foreign_cn (shares) (numeric string)
+     * @param string $local_cg Shares held by domestic Congregation investors (shares) (numeric string)
+     * @param string $foreign_cg Shares held by foreign Congregation investors (shares) (numeric string)
+     * @param string $cg Shares held by Congregation investors, local_cg + foreign_cg (shares) (numeric string)
+     * @param string $local_cp Shares held by domestic Cooperative investors (shares) (numeric string)
+     * @param string $foreign_cp Shares held by foreign Cooperative investors (shares) (numeric string)
+     * @param string $cp Shares held by Cooperative investors, local_cp + foreign_cp (shares) (numeric string)
+     * @param string $local_io Shares held by domestic International Organization investors (shares) (numeric string)
+     * @param string $foreign_io Shares held by foreign International Organization investors (shares) (numeric string)
+     * @param string $io Shares held by International Organization investors, local_io + foreign_io (shares) (numeric string)
+     * @param string $local_pl Shares held by domestic Political Party investors (shares) (numeric string)
+     * @param string $foreign_pl Shares held by foreign Political Party investors (shares) (numeric string)
+     * @param string $pl Shares held by Political Party investors, local_pl + foreign_pl (shares) (numeric string)
+     * @param string $local_pt Shares held by domestic Partnership investors (shares) (numeric string)
+     * @param string $foreign_pt Shares held by foreign Partnership investors (shares) (numeric string)
+     * @param string $pt Shares held by Partnership investors, local_pt + foreign_pt (shares) (numeric string)
+     * @param string $local_ed Shares held by domestic Educational Institution investors (shares) (numeric string)
+     * @param string $foreign_ed Shares held by foreign Educational Institution investors (shares) (numeric string)
+     * @param string $ed Shares held by Educational Institution investors, local_ed + foreign_ed (shares) (numeric string)
+     * @param string $local_mf Shares held by domestic Mutual Fund investors (shares) (numeric string)
+     * @param string $foreign_mf Shares held by foreign Mutual Fund investors (shares) (numeric string)
+     * @param string $mf Shares held by Mutual Fund investors, local_mf + foreign_mf (shares) (numeric string)
+     * @param string $local_sc Shares held by domestic Securities Company investors (shares) (numeric string)
+     * @param string $foreign_sc Shares held by foreign Securities Company investors (shares) (numeric string)
+     * @param string $sc Shares held by Securities Company investors, local_sc + foreign_sc (shares) (numeric string)
+     * @param string $local_pf Shares held by domestic Pension Fund investors (shares) (numeric string)
+     * @param string $foreign_pf Shares held by foreign Pension Fund investors (shares) (numeric string)
+     * @param string $pf Shares held by Pension Fund investors, local_pf + foreign_pf (shares) (numeric string)
+     * @param string $local_ib Shares held by domestic Financial Institution investors (shares) (numeric string)
+     * @param string $foreign_ib Shares held by foreign Financial Institution investors (shares) (numeric string)
+     * @param string $ib Shares held by Financial Institution investors, local_ib + foreign_ib (shares) (numeric string)
+     * @param string $local_is Shares held by domestic Insurance investors (shares) (numeric string)
+     * @param string $foreign_is Shares held by foreign Insurance investors (shares) (numeric string)
+     * @param string $is Shares held by Insurance investors, local_is + foreign_is (shares) (numeric string)
+     * @param string $local_fd Shares held by domestic Foundation investors (shares) (numeric string)
+     * @param string $foreign_fd Shares held by foreign Foundation investors (shares) (numeric string)
+     * @param string $fd Shares held by Foundation investors, local_fd + foreign_fd (shares) (numeric string)
+     * @param string $local_in Shares held by domestic Individual investors (shares) (numeric string)
+     * @param string $foreign_in Shares held by foreign Individual investors (shares) (numeric string)
+     * @param string $in Shares held by Individual investors, local_in + foreign_in (shares) (numeric string)
+     * @param string $total_foreign Total shares held by foreign investors (shares) (numeric string)
+     * @param string $total_local Total shares held by domestic investors (shares) (numeric string)
      * @param string $total Total shares across all classifications (shares) (numeric string)
      */
     public function __construct(
         public readonly string $code,
+        public readonly string $local_bk,
+        public readonly string $foreign_bk,
         public readonly string $bk,
+        public readonly string $local_gv,
+        public readonly string $foreign_gv,
         public readonly string $gv,
+        public readonly string $local_pe,
+        public readonly string $foreign_pe,
         public readonly string $pe,
+        public readonly string $local_tb,
+        public readonly string $foreign_tb,
         public readonly string $tb,
+        public readonly string $local_vc,
+        public readonly string $foreign_vc,
         public readonly string $vc,
+        public readonly string $local_pb,
+        public readonly string $foreign_pb,
         public readonly string $pb,
+        public readonly string $local_ef,
+        public readonly string $foreign_ef,
         public readonly string $ef,
+        public readonly string $local_im,
+        public readonly string $foreign_im,
         public readonly string $im,
+        public readonly string $local_ia,
+        public readonly string $foreign_ia,
         public readonly string $ia,
+        public readonly string $local_br,
+        public readonly string $foreign_br,
         public readonly string $br,
+        public readonly string $local_hf,
+        public readonly string $foreign_hf,
         public readonly string $hf,
+        public readonly string $local_sw,
+        public readonly string $foreign_sw,
         public readonly string $sw,
+        public readonly string $local_cm,
+        public readonly string $foreign_cm,
         public readonly string $cm,
+        public readonly string $local_cv,
+        public readonly string $foreign_cv,
         public readonly string $cv,
+        public readonly string $local_fm,
+        public readonly string $foreign_fm,
         public readonly string $fm,
+        public readonly string $local_sa,
+        public readonly string $foreign_sa,
         public readonly string $sa,
+        public readonly string $local_pp,
+        public readonly string $foreign_pp,
         public readonly string $pp,
+        public readonly string $local_ps,
+        public readonly string $foreign_ps,
         public readonly string $ps,
+        public readonly string $local_sp,
+        public readonly string $foreign_sp,
         public readonly string $sp,
+        public readonly string $local_cr,
+        public readonly string $foreign_cr,
         public readonly string $cr,
+        public readonly string $local_as,
+        public readonly string $foreign_as,
         public readonly string $as,
+        public readonly string $local_so,
+        public readonly string $foreign_so,
         public readonly string $so,
+        public readonly string $local_cb,
+        public readonly string $foreign_cb,
         public readonly string $cb,
+        public readonly string $local_oc,
+        public readonly string $foreign_oc,
         public readonly string $oc,
+        public readonly string $local_dc,
+        public readonly string $foreign_dc,
         public readonly string $dc,
+        public readonly string $local_cn,
+        public readonly string $foreign_cn,
         public readonly string $cn,
+        public readonly string $local_cg,
+        public readonly string $foreign_cg,
         public readonly string $cg,
+        public readonly string $local_cp,
+        public readonly string $foreign_cp,
         public readonly string $cp,
+        public readonly string $local_io,
+        public readonly string $foreign_io,
         public readonly string $io,
+        public readonly string $local_pl,
+        public readonly string $foreign_pl,
         public readonly string $pl,
+        public readonly string $local_pt,
+        public readonly string $foreign_pt,
         public readonly string $pt,
+        public readonly string $local_ed,
+        public readonly string $foreign_ed,
         public readonly string $ed,
+        public readonly string $local_mf,
+        public readonly string $foreign_mf,
         public readonly string $mf,
+        public readonly string $local_sc,
+        public readonly string $foreign_sc,
         public readonly string $sc,
+        public readonly string $local_pf,
+        public readonly string $foreign_pf,
         public readonly string $pf,
+        public readonly string $local_ib,
+        public readonly string $foreign_ib,
         public readonly string $ib,
+        public readonly string $local_is,
+        public readonly string $foreign_is,
         public readonly string $is,
+        public readonly string $local_fd,
+        public readonly string $foreign_fd,
         public readonly string $fd,
+        public readonly string $local_in,
+        public readonly string $foreign_in,
         public readonly string $in,
+        public readonly string $total_foreign,
+        public readonly string $total_local,
         public readonly string $total,
     ) {
     }
@@ -110,45 +270,125 @@ final class ShareholderClassifyTableResponse implements \JsonSerializable
     {
         return new self(
             code: Hydrate::string($data['code'] ?? null) ?? '',
+            local_bk: Hydrate::string($data['local_bk'] ?? null) ?? '',
+            foreign_bk: Hydrate::string($data['foreign_bk'] ?? null) ?? '',
             bk: Hydrate::string($data['bk'] ?? null) ?? '',
+            local_gv: Hydrate::string($data['local_gv'] ?? null) ?? '',
+            foreign_gv: Hydrate::string($data['foreign_gv'] ?? null) ?? '',
             gv: Hydrate::string($data['gv'] ?? null) ?? '',
+            local_pe: Hydrate::string($data['local_pe'] ?? null) ?? '',
+            foreign_pe: Hydrate::string($data['foreign_pe'] ?? null) ?? '',
             pe: Hydrate::string($data['pe'] ?? null) ?? '',
+            local_tb: Hydrate::string($data['local_tb'] ?? null) ?? '',
+            foreign_tb: Hydrate::string($data['foreign_tb'] ?? null) ?? '',
             tb: Hydrate::string($data['tb'] ?? null) ?? '',
+            local_vc: Hydrate::string($data['local_vc'] ?? null) ?? '',
+            foreign_vc: Hydrate::string($data['foreign_vc'] ?? null) ?? '',
             vc: Hydrate::string($data['vc'] ?? null) ?? '',
+            local_pb: Hydrate::string($data['local_pb'] ?? null) ?? '',
+            foreign_pb: Hydrate::string($data['foreign_pb'] ?? null) ?? '',
             pb: Hydrate::string($data['pb'] ?? null) ?? '',
+            local_ef: Hydrate::string($data['local_ef'] ?? null) ?? '',
+            foreign_ef: Hydrate::string($data['foreign_ef'] ?? null) ?? '',
             ef: Hydrate::string($data['ef'] ?? null) ?? '',
+            local_im: Hydrate::string($data['local_im'] ?? null) ?? '',
+            foreign_im: Hydrate::string($data['foreign_im'] ?? null) ?? '',
             im: Hydrate::string($data['im'] ?? null) ?? '',
+            local_ia: Hydrate::string($data['local_ia'] ?? null) ?? '',
+            foreign_ia: Hydrate::string($data['foreign_ia'] ?? null) ?? '',
             ia: Hydrate::string($data['ia'] ?? null) ?? '',
+            local_br: Hydrate::string($data['local_br'] ?? null) ?? '',
+            foreign_br: Hydrate::string($data['foreign_br'] ?? null) ?? '',
             br: Hydrate::string($data['br'] ?? null) ?? '',
+            local_hf: Hydrate::string($data['local_hf'] ?? null) ?? '',
+            foreign_hf: Hydrate::string($data['foreign_hf'] ?? null) ?? '',
             hf: Hydrate::string($data['hf'] ?? null) ?? '',
+            local_sw: Hydrate::string($data['local_sw'] ?? null) ?? '',
+            foreign_sw: Hydrate::string($data['foreign_sw'] ?? null) ?? '',
             sw: Hydrate::string($data['sw'] ?? null) ?? '',
+            local_cm: Hydrate::string($data['local_cm'] ?? null) ?? '',
+            foreign_cm: Hydrate::string($data['foreign_cm'] ?? null) ?? '',
             cm: Hydrate::string($data['cm'] ?? null) ?? '',
+            local_cv: Hydrate::string($data['local_cv'] ?? null) ?? '',
+            foreign_cv: Hydrate::string($data['foreign_cv'] ?? null) ?? '',
             cv: Hydrate::string($data['cv'] ?? null) ?? '',
+            local_fm: Hydrate::string($data['local_fm'] ?? null) ?? '',
+            foreign_fm: Hydrate::string($data['foreign_fm'] ?? null) ?? '',
             fm: Hydrate::string($data['fm'] ?? null) ?? '',
+            local_sa: Hydrate::string($data['local_sa'] ?? null) ?? '',
+            foreign_sa: Hydrate::string($data['foreign_sa'] ?? null) ?? '',
             sa: Hydrate::string($data['sa'] ?? null) ?? '',
+            local_pp: Hydrate::string($data['local_pp'] ?? null) ?? '',
+            foreign_pp: Hydrate::string($data['foreign_pp'] ?? null) ?? '',
             pp: Hydrate::string($data['pp'] ?? null) ?? '',
+            local_ps: Hydrate::string($data['local_ps'] ?? null) ?? '',
+            foreign_ps: Hydrate::string($data['foreign_ps'] ?? null) ?? '',
             ps: Hydrate::string($data['ps'] ?? null) ?? '',
+            local_sp: Hydrate::string($data['local_sp'] ?? null) ?? '',
+            foreign_sp: Hydrate::string($data['foreign_sp'] ?? null) ?? '',
             sp: Hydrate::string($data['sp'] ?? null) ?? '',
+            local_cr: Hydrate::string($data['local_cr'] ?? null) ?? '',
+            foreign_cr: Hydrate::string($data['foreign_cr'] ?? null) ?? '',
             cr: Hydrate::string($data['cr'] ?? null) ?? '',
+            local_as: Hydrate::string($data['local_as'] ?? null) ?? '',
+            foreign_as: Hydrate::string($data['foreign_as'] ?? null) ?? '',
             as: Hydrate::string($data['as'] ?? null) ?? '',
+            local_so: Hydrate::string($data['local_so'] ?? null) ?? '',
+            foreign_so: Hydrate::string($data['foreign_so'] ?? null) ?? '',
             so: Hydrate::string($data['so'] ?? null) ?? '',
+            local_cb: Hydrate::string($data['local_cb'] ?? null) ?? '',
+            foreign_cb: Hydrate::string($data['foreign_cb'] ?? null) ?? '',
             cb: Hydrate::string($data['cb'] ?? null) ?? '',
+            local_oc: Hydrate::string($data['local_oc'] ?? null) ?? '',
+            foreign_oc: Hydrate::string($data['foreign_oc'] ?? null) ?? '',
             oc: Hydrate::string($data['oc'] ?? null) ?? '',
+            local_dc: Hydrate::string($data['local_dc'] ?? null) ?? '',
+            foreign_dc: Hydrate::string($data['foreign_dc'] ?? null) ?? '',
             dc: Hydrate::string($data['dc'] ?? null) ?? '',
+            local_cn: Hydrate::string($data['local_cn'] ?? null) ?? '',
+            foreign_cn: Hydrate::string($data['foreign_cn'] ?? null) ?? '',
             cn: Hydrate::string($data['cn'] ?? null) ?? '',
+            local_cg: Hydrate::string($data['local_cg'] ?? null) ?? '',
+            foreign_cg: Hydrate::string($data['foreign_cg'] ?? null) ?? '',
             cg: Hydrate::string($data['cg'] ?? null) ?? '',
+            local_cp: Hydrate::string($data['local_cp'] ?? null) ?? '',
+            foreign_cp: Hydrate::string($data['foreign_cp'] ?? null) ?? '',
             cp: Hydrate::string($data['cp'] ?? null) ?? '',
+            local_io: Hydrate::string($data['local_io'] ?? null) ?? '',
+            foreign_io: Hydrate::string($data['foreign_io'] ?? null) ?? '',
             io: Hydrate::string($data['io'] ?? null) ?? '',
+            local_pl: Hydrate::string($data['local_pl'] ?? null) ?? '',
+            foreign_pl: Hydrate::string($data['foreign_pl'] ?? null) ?? '',
             pl: Hydrate::string($data['pl'] ?? null) ?? '',
+            local_pt: Hydrate::string($data['local_pt'] ?? null) ?? '',
+            foreign_pt: Hydrate::string($data['foreign_pt'] ?? null) ?? '',
             pt: Hydrate::string($data['pt'] ?? null) ?? '',
+            local_ed: Hydrate::string($data['local_ed'] ?? null) ?? '',
+            foreign_ed: Hydrate::string($data['foreign_ed'] ?? null) ?? '',
             ed: Hydrate::string($data['ed'] ?? null) ?? '',
+            local_mf: Hydrate::string($data['local_mf'] ?? null) ?? '',
+            foreign_mf: Hydrate::string($data['foreign_mf'] ?? null) ?? '',
             mf: Hydrate::string($data['mf'] ?? null) ?? '',
+            local_sc: Hydrate::string($data['local_sc'] ?? null) ?? '',
+            foreign_sc: Hydrate::string($data['foreign_sc'] ?? null) ?? '',
             sc: Hydrate::string($data['sc'] ?? null) ?? '',
+            local_pf: Hydrate::string($data['local_pf'] ?? null) ?? '',
+            foreign_pf: Hydrate::string($data['foreign_pf'] ?? null) ?? '',
             pf: Hydrate::string($data['pf'] ?? null) ?? '',
+            local_ib: Hydrate::string($data['local_ib'] ?? null) ?? '',
+            foreign_ib: Hydrate::string($data['foreign_ib'] ?? null) ?? '',
             ib: Hydrate::string($data['ib'] ?? null) ?? '',
+            local_is: Hydrate::string($data['local_is'] ?? null) ?? '',
+            foreign_is: Hydrate::string($data['foreign_is'] ?? null) ?? '',
             is: Hydrate::string($data['is'] ?? null) ?? '',
+            local_fd: Hydrate::string($data['local_fd'] ?? null) ?? '',
+            foreign_fd: Hydrate::string($data['foreign_fd'] ?? null) ?? '',
             fd: Hydrate::string($data['fd'] ?? null) ?? '',
+            local_in: Hydrate::string($data['local_in'] ?? null) ?? '',
+            foreign_in: Hydrate::string($data['foreign_in'] ?? null) ?? '',
             in: Hydrate::string($data['in'] ?? null) ?? '',
+            total_foreign: Hydrate::string($data['total_foreign'] ?? null) ?? '',
+            total_local: Hydrate::string($data['total_local'] ?? null) ?? '',
             total: Hydrate::string($data['total'] ?? null) ?? '',
         );
     }
@@ -162,45 +402,125 @@ final class ShareholderClassifyTableResponse implements \JsonSerializable
     {
         return [
             'code' => $this->code,
+            'local_bk' => $this->local_bk,
+            'foreign_bk' => $this->foreign_bk,
             'bk' => $this->bk,
+            'local_gv' => $this->local_gv,
+            'foreign_gv' => $this->foreign_gv,
             'gv' => $this->gv,
+            'local_pe' => $this->local_pe,
+            'foreign_pe' => $this->foreign_pe,
             'pe' => $this->pe,
+            'local_tb' => $this->local_tb,
+            'foreign_tb' => $this->foreign_tb,
             'tb' => $this->tb,
+            'local_vc' => $this->local_vc,
+            'foreign_vc' => $this->foreign_vc,
             'vc' => $this->vc,
+            'local_pb' => $this->local_pb,
+            'foreign_pb' => $this->foreign_pb,
             'pb' => $this->pb,
+            'local_ef' => $this->local_ef,
+            'foreign_ef' => $this->foreign_ef,
             'ef' => $this->ef,
+            'local_im' => $this->local_im,
+            'foreign_im' => $this->foreign_im,
             'im' => $this->im,
+            'local_ia' => $this->local_ia,
+            'foreign_ia' => $this->foreign_ia,
             'ia' => $this->ia,
+            'local_br' => $this->local_br,
+            'foreign_br' => $this->foreign_br,
             'br' => $this->br,
+            'local_hf' => $this->local_hf,
+            'foreign_hf' => $this->foreign_hf,
             'hf' => $this->hf,
+            'local_sw' => $this->local_sw,
+            'foreign_sw' => $this->foreign_sw,
             'sw' => $this->sw,
+            'local_cm' => $this->local_cm,
+            'foreign_cm' => $this->foreign_cm,
             'cm' => $this->cm,
+            'local_cv' => $this->local_cv,
+            'foreign_cv' => $this->foreign_cv,
             'cv' => $this->cv,
+            'local_fm' => $this->local_fm,
+            'foreign_fm' => $this->foreign_fm,
             'fm' => $this->fm,
+            'local_sa' => $this->local_sa,
+            'foreign_sa' => $this->foreign_sa,
             'sa' => $this->sa,
+            'local_pp' => $this->local_pp,
+            'foreign_pp' => $this->foreign_pp,
             'pp' => $this->pp,
+            'local_ps' => $this->local_ps,
+            'foreign_ps' => $this->foreign_ps,
             'ps' => $this->ps,
+            'local_sp' => $this->local_sp,
+            'foreign_sp' => $this->foreign_sp,
             'sp' => $this->sp,
+            'local_cr' => $this->local_cr,
+            'foreign_cr' => $this->foreign_cr,
             'cr' => $this->cr,
+            'local_as' => $this->local_as,
+            'foreign_as' => $this->foreign_as,
             'as' => $this->as,
+            'local_so' => $this->local_so,
+            'foreign_so' => $this->foreign_so,
             'so' => $this->so,
+            'local_cb' => $this->local_cb,
+            'foreign_cb' => $this->foreign_cb,
             'cb' => $this->cb,
+            'local_oc' => $this->local_oc,
+            'foreign_oc' => $this->foreign_oc,
             'oc' => $this->oc,
+            'local_dc' => $this->local_dc,
+            'foreign_dc' => $this->foreign_dc,
             'dc' => $this->dc,
+            'local_cn' => $this->local_cn,
+            'foreign_cn' => $this->foreign_cn,
             'cn' => $this->cn,
+            'local_cg' => $this->local_cg,
+            'foreign_cg' => $this->foreign_cg,
             'cg' => $this->cg,
+            'local_cp' => $this->local_cp,
+            'foreign_cp' => $this->foreign_cp,
             'cp' => $this->cp,
+            'local_io' => $this->local_io,
+            'foreign_io' => $this->foreign_io,
             'io' => $this->io,
+            'local_pl' => $this->local_pl,
+            'foreign_pl' => $this->foreign_pl,
             'pl' => $this->pl,
+            'local_pt' => $this->local_pt,
+            'foreign_pt' => $this->foreign_pt,
             'pt' => $this->pt,
+            'local_ed' => $this->local_ed,
+            'foreign_ed' => $this->foreign_ed,
             'ed' => $this->ed,
+            'local_mf' => $this->local_mf,
+            'foreign_mf' => $this->foreign_mf,
             'mf' => $this->mf,
+            'local_sc' => $this->local_sc,
+            'foreign_sc' => $this->foreign_sc,
             'sc' => $this->sc,
+            'local_pf' => $this->local_pf,
+            'foreign_pf' => $this->foreign_pf,
             'pf' => $this->pf,
+            'local_ib' => $this->local_ib,
+            'foreign_ib' => $this->foreign_ib,
             'ib' => $this->ib,
+            'local_is' => $this->local_is,
+            'foreign_is' => $this->foreign_is,
             'is' => $this->is,
+            'local_fd' => $this->local_fd,
+            'foreign_fd' => $this->foreign_fd,
             'fd' => $this->fd,
+            'local_in' => $this->local_in,
+            'foreign_in' => $this->foreign_in,
             'in' => $this->in,
+            'total_foreign' => $this->total_foreign,
+            'total_local' => $this->total_local,
             'total' => $this->total,
         ];
     }

@@ -14,18 +14,24 @@ use Invezgo\Internal\Hydrate;
 final class DisclosureData implements \JsonSerializable
 {
     /**
+     * @param string $id Disclosure id
      * @param string $title Disclosure title
-     * @param string $code Issuer stock code (empty string if not tagged)
+     * @param string $code Issuer stock code
      * @param string $date Publication time, WIB wall-clock in YYYY-MM-DDTHH:MM:SS format (no Z, no fraction), e.g. 2026-09-29T08:00:00
-     * @param string $type Disclosure type, e.g. public_expose (empty string if not tagged)
+     * @param string $type Disclosure type (lowercase StockReportType), e.g. public_expose
+     * @param list<string> $summary Disclosure summary points
      * @param list<DisclosureDataList> $list Attachment files
+     * @param string|null $description Disclosure description
      */
     public function __construct(
+        public readonly string $id,
         public readonly string $title,
         public readonly string $code,
         public readonly string $date,
         public readonly string $type,
+        public readonly array $summary,
         public readonly array $list,
+        public readonly ?string $description = null,
     ) {
     }
 
@@ -37,11 +43,14 @@ final class DisclosureData implements \JsonSerializable
     public static function fromArray(array $data): self
     {
         return new self(
+            id: Hydrate::string($data['id'] ?? null) ?? '',
             title: Hydrate::string($data['title'] ?? null) ?? '',
             code: Hydrate::string($data['code'] ?? null) ?? '',
             date: Hydrate::string($data['date'] ?? null) ?? '',
             type: Hydrate::string($data['type'] ?? null) ?? '',
+            summary: Hydrate::list($data['summary'] ?? null, static fn (mixed $x0) => Hydrate::string($x0) ?? '') ?? [],
             list: Hydrate::list($data['list'] ?? null, static fn (mixed $x0) => Hydrate::model($x0, DisclosureDataList::fromArray(...)) ?? DisclosureDataList::fromArray([])) ?? [],
+            description: Hydrate::string($data['description'] ?? null),
         );
     }
 
@@ -53,10 +62,13 @@ final class DisclosureData implements \JsonSerializable
     public function toArray(): array
     {
         return [
+            'id' => $this->id,
             'title' => $this->title,
             'code' => $this->code,
             'date' => $this->date,
             'type' => $this->type,
+            'description' => $this->description,
+            'summary' => $this->summary,
             'list' => array_map(static fn (DisclosureDataList $x0) => $x0->toArray(), $this->list),
         ];
     }

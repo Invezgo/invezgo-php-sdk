@@ -17,7 +17,7 @@ final class UpdateAlertRequest implements \JsonSerializable
      * @param string $name
      * @param string $every
      * @param string $send
-     * @param string $formula
+     * @param string $formula Formula alert (sama dengan batas formula screener)
      * @param string|null $description
      * @param list<string>|null $category Kategori indeks saham yang ingin disaring (opsional, bisa multi seperti ["SYARIAH", "IDXENERGY"])
      * @param list<string>|null $scope

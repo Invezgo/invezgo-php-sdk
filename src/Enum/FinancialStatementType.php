@@ -9,7 +9,7 @@ namespace Invezgo\Enum;
 /**
  * Periode laporan: `FY` = tahunan, `Q` = seluruh kuartal, `Q1`–`Q4` = kuartal tertentu.
  *
- * Value of the `type` parameter. Used by: analysis->getFinancialStatement(), analysis->getFinancialStatementChart(), analysis->getKeystat(), analysis->getKeystatChart().
+ * Value of the `type` parameter. Used by: analysis->getFinancialStatement(), analysis->getFinancialStatementChart(), analysis->getFlowOfFunds(), analysis->getKeystat(), analysis->getKeystatChart().
  */
 enum FinancialStatementType: string
 {
