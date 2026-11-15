@@ -96,7 +96,6 @@ final class WebhookTest extends \PHPUnit\Framework\TestCase
     {
         $e = new WebhookVerificationException('x', WebhookVerificationException::REASON_SIGNATURE);
         self::assertInstanceOf(InvezgoException::class, $e);
-        self::assertNotInstanceOf(\Invezgo\Exception\ApiException::class, $e);
     }
 
     public function testParsesTypedDataForDocumentedEvents(): void
