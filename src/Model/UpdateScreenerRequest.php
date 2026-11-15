@@ -54,10 +54,16 @@ final class UpdateScreenerRequest implements \JsonSerializable
     {
         $out = [];
         $out['name'] = $this->name;
-        $out['description'] = $this->description;
-        $out['scope'] = $this->scope;
+        if ($this->description !== null) {
+            $out['description'] = $this->description;
+        }
+        if ($this->scope !== null) {
+            $out['scope'] = $this->scope;
+        }
         $out['formula'] = $this->formula;
-        $out['category'] = $this->category;
+        if ($this->category !== null) {
+            $out['category'] = $this->category;
+        }
         return $out;
     }
 

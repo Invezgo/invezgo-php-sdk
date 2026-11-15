@@ -29,7 +29,7 @@ final class BatchResource
     /**
      * Batch Stock Order Book
      *
-     * Get order book data for multiple stocks at once in a single request (up to 10 codes on the MAX plan, 25 on the ELITE plan).
+     * Get order book data for multiple stocks at once in a single request (up to 20 codes on the MAX plan, 50 on the ELITE plan).
      *
      * Data Retrieval Modes:
      * - Realtime: Without date/time parameters - uses realtime data; falls back to the latest data when it is not available yet
@@ -37,6 +37,7 @@ final class BatchResource
      *
      * Response (array, one item per code):
      * - code: Stock code (with the market suffix when market is not RG, e.g. BBCANG)
+     * - date: Time of the data (WIB). For realtime data, when it was retrieved; otherwise when it was recorded. null when there is no data
      * - bid: List of buy queue levels, ordered from level 1 (best price); each item's keys use the level number n:
      *   - bid<n>price: Bid price at level n (Rupiah)
      *   - bid<n>lot: Number of lots at level n
@@ -53,13 +54,13 @@ final class BatchResource
      *
      * Access & Limits:
      * - API Key only, on the MAX or ELITE plans
-     * - Codes per request: up to 10 on the MAX plan, 25 on the ELITE plan
+     * - Codes per request: up to 20 on the MAX plan, 50 on the ELITE plan
      *
      * Update: Real-time (without date/time) or Historical (with date/time)
      *
      * Route: `GET /batch/order-book/{code}` — cached (`realtimeTtl`).
      *
-     * @param string $code Daftar kode saham yang dipisahkan `|` atau koma, mis. `BBCA|GOTO|TLKM`. Maksimal 10 kode (paket MAX) atau 25 kode (paket ELITE) per request.
+     * @param string $code Daftar kode saham yang dipisahkan `|` atau koma, mis. `BBCA|GOTO|TLKM`. Maksimal 20 kode (paket MAX) atau 50 kode (paket ELITE) per request.
      * @param Market|string|null $market Jenis pasar: `RG` = Pasar Reguler, `NG` = Pasar Negosiasi, `TN` = Pasar Tunai. Gunakan `RG` untuk analisis pergerakan harga pada umumnya. Default `RG` bila tidak diisi. Default: `RG`.
      * @param string|\DateTimeInterface|null $date Tanggal order book historis (`YYYY-MM-DD`), data tersedia mulai `2026-03-25`. Kirim bersama `time`; kosongkan keduanya untuk data realtime.
      * @param string|null $time Jam order book dalam WIB, format `HH:mm` dengan presisi menit. Kirim bersama `date`.
@@ -92,7 +93,7 @@ final class BatchResource
     /**
      * Batch Stock Intraday Data
      *
-     * Get compact intraday price data for multiple stocks at once in a single request (up to 10 codes on the MAX plan, 25 on the ELITE plan).
+     * Get compact intraday price data for multiple stocks at once in a single request (up to 20 codes on the MAX plan, 50 on the ELITE plan).
      *
      * Data Retrieval Modes:
      * - Realtime: Without the date parameter - uses realtime data (fields that are not available are omitted); falls back to the latest daily data when it is not available yet
@@ -101,6 +102,7 @@ final class BatchResource
      *
      * Response (array, one item per code):
      * - code: Stock code (with the market suffix when market is not RG)
+     * - date: Time of the data (WIB). For realtime data, when it was retrieved; otherwise 16:15 (market close) of that trading day. null when there is no data
      * - open: Opening price (Rupiah)
      * - high: Highest price (Rupiah)
      * - low: Lowest price (Rupiah)
@@ -121,16 +123,16 @@ final class BatchResource
      *
      * Access & Limits:
      * - API Key only, on the MAX or ELITE plans
-     * - Codes per request: up to 10 on the MAX plan, 25 on the ELITE plan
+     * - Codes per request: up to 20 on the MAX plan, 50 on the ELITE plan
      *
      * Notes:
-     * - A code without data contains only code and close (null)
+     * - A code without data contains only code, date (null) and close (null)
      *
      * Update: Real-time (without date) or Historical (with date)
      *
      * Route: `GET /batch/intraday-data/{code}` — cached (`realtimeTtl`).
      *
-     * @param string $code Daftar kode saham yang dipisahkan `|` atau koma, mis. `BBCA|GOTO|TLKM`. Maksimal 10 kode (paket MAX) atau 25 kode (paket ELITE) per request.
+     * @param string $code Daftar kode saham yang dipisahkan `|` atau koma, mis. `BBCA|GOTO|TLKM`. Maksimal 20 kode (paket MAX) atau 50 kode (paket ELITE) per request.
      * @param Market|string|null $market Jenis pasar: `RG` = Pasar Reguler, `NG` = Pasar Negosiasi, `TN` = Pasar Tunai. Gunakan `RG` untuk analisis pergerakan harga pada umumnya. Default `RG` bila tidak diisi. Default: `RG`.
      * @param string|\DateTimeInterface|null $date Tanggal data historis (`YYYY-MM-DD`). Kosongkan untuk data realtime hari ini.
      * @return list<BatchIntradayDataItem>
@@ -160,7 +162,7 @@ final class BatchResource
     /**
      * Batch Index Intraday Data
      *
-     * Get compact intraday data for multiple indexes at once in a single request (up to 10 codes on the MAX plan, 25 on the ELITE plan).
+     * Get compact intraday data for multiple indexes at once in a single request (up to 20 codes on the MAX plan, 50 on the ELITE plan).
      *
      * Data Retrieval Modes:
      * - Realtime: When realtime data is available - uses realtime data (fields that are not available are omitted)
@@ -168,6 +170,7 @@ final class BatchResource
      *
      * Response (array, one item per code):
      * - code: Index code
+     * - date: Time of the data (WIB). For realtime data, when it was retrieved; otherwise 16:15 (market close) of that trading day. null when there is no data
      * - open: Index opening value
      * - high: Index highest value
      * - low: Index lowest value
@@ -185,16 +188,16 @@ final class BatchResource
      *
      * Access & Limits:
      * - API Key only, on the MAX or ELITE plans
-     * - Codes per request: up to 10 on the MAX plan, 25 on the ELITE plan
+     * - Codes per request: up to 20 on the MAX plan, 50 on the ELITE plan
      *
      * Notes:
-     * - A code without data contains only code and close (null)
+     * - A code without data contains only code, date (null) and close (null)
      *
      * Update: Real-time
      *
      * Route: `GET /batch/intraday-index/{code}` — cached (`realtimeTtl`).
      *
-     * @param string $code Daftar kode indeks yang dipisahkan `|` atau koma, mis. `COMPOSITE|LQ45|IDX30`. Maksimal 10 kode (paket MAX) atau 25 kode (paket ELITE) per request. Daftar indeks tersedia di `/analysis/list/index`.
+     * @param string $code Daftar kode indeks yang dipisahkan `|` atau koma, mis. `COMPOSITE|LQ45|IDX30`. Maksimal 20 kode (paket MAX) atau 50 kode (paket ELITE) per request. Daftar indeks tersedia di `/analysis/list/index`.
      * @return list<BatchIntradayIndexItem>
      *
      * @throws InvezgoException On API, rate-limit or connection errors.

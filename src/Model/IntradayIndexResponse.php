@@ -15,6 +15,7 @@ final class IntradayIndexResponse implements \JsonSerializable
 {
     /**
      * @param string $code Index code
+     * @param string|null $date Time of the data in WIB (UTC+7), not UTC. Live data shows when it was retrieved; stored data shows 16:15 (market close) of that trading day. Null when no data is available.
      * @param float|null $open Index opening value; may be a numeric string outside trading hours
      * @param float|null $high Index highest value; may be a numeric string outside trading hours
      * @param float|null $low Index lowest value; may be a numeric string outside trading hours
@@ -32,6 +33,7 @@ final class IntradayIndexResponse implements \JsonSerializable
      */
     public function __construct(
         public readonly string $code,
+        public readonly ?string $date = null,
         public readonly ?float $open = null,
         public readonly ?float $high = null,
         public readonly ?float $low = null,
@@ -58,6 +60,7 @@ final class IntradayIndexResponse implements \JsonSerializable
     {
         return new self(
             code: Hydrate::string($data['code'] ?? null) ?? '',
+            date: Hydrate::string($data['date'] ?? null),
             open: Hydrate::float($data['open'] ?? null),
             high: Hydrate::float($data['high'] ?? null),
             low: Hydrate::float($data['low'] ?? null),
@@ -84,6 +87,7 @@ final class IntradayIndexResponse implements \JsonSerializable
     {
         return [
             'code' => $this->code,
+            'date' => $this->date,
             'open' => $this->open,
             'high' => $this->high,
             'low' => $this->low,

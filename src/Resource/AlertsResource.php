@@ -39,7 +39,10 @@ final class AlertsResource
      * - message: Success message in the requested language (Accept-Language), e.g. "New Live Alert {name} added successfully"
      *
      * Notes:
-     * - A Telegram account must be connected
+     * - channel selects where notifications go: TELEGRAM (default), WEBHOOK, or MCP
+     * - TELEGRAM: a Telegram account must be connected
+     * - WEBHOOK: an active webhook and a PRIME, MAX, or ELITE plan
+     * - MCP: a PRIME, MAX, or ELITE plan; events go to AI agents subscribed through MCP Events
      * - Active alert limit per plan: TRIAL 2, BASIC 7, PRO 15, ULTRA 30; ADVANCE and higher plans are unlimited
      * - The formula is tested first; if it is invalid, the alert is not created and the 400 response contains the formula error details
      * - The alert stays active until your subscription expires
@@ -174,7 +177,8 @@ final class AlertsResource
      *
      * Notes:
      * - The formula is tested first; if it is invalid, the alert is not changed and the 400 response contains the formula error details
-     * - Requires an active subscription and a connected Telegram account; the alert's active period is extended to the subscription expiry
+     * - Requires an active subscription; the alert's active period is extended to the subscription expiry
+     * - An omitted channel keeps the alert's channel; the channel destination must be ready as when creating an alert (Telegram connected, or an active webhook and a PRIME, MAX, or ELITE plan for WEBHOOK/MCP)
      * - An alert that does not exist, is not yours, or is disabled returns 404
      * - scope defaults to ["public"] when omitted; an omitted description or category is cleared
      *

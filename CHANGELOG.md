@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+- `Invezgo\Webhook\Webhook::verify($rawBody, $headers, $secret, $tolerance = 300)`: verifies `X-Invezgo-Timestamp`
+  and the HMAC-SHA256 `X-Invezgo-Signature` (constant-time), returns a `WebhookEvent` with `name()` and
+  `typedData()` (`UpdateData`, `AlertTriggeredData`, `AlertDisabledData`, `PingData`, `QuotaData`);
+  `Webhook::parse()` for already-verified bodies; `WebhookVerificationException` (`reason`: `timestamp`,
+  `signature`, `payload`). No new dependency.
+- `$client->realtime()` / `Invezgo\Realtime\RealtimeClient`: WebSocket client for real-time trades and order book
+  (Elite plan, beta) with blocking `run()`, callbacks, subscription replay and auto-reconnect with backoff.
+  Requires the optional package `phrity/websocket` (^3.0, listed under `suggest`).
+
 ## [2.1.0] - 2026-11-11
 
 Regenerated from the latest OpenAPI spec (Invezgo API 1.2, 109 endpoints).

@@ -15,6 +15,7 @@ final class BatchIntradayDataItem implements \JsonSerializable
 {
     /**
      * @param string $code Stock code (carries the market suffix when market is not RG)
+     * @param string|null $date Time of the data in WIB (UTC+7), not UTC. Live data shows when it was retrieved; stored data shows 16:15 (market close) of that trading day. Null when no data is available.
      * @param float|null $open Opening price (Rupiah)
      * @param float|null $high Highest price (Rupiah)
      * @param float|null $low Lowest price (Rupiah)
@@ -35,6 +36,7 @@ final class BatchIntradayDataItem implements \JsonSerializable
      */
     public function __construct(
         public readonly string $code,
+        public readonly ?string $date = null,
         public readonly ?float $open = null,
         public readonly ?float $high = null,
         public readonly ?float $low = null,
@@ -64,6 +66,7 @@ final class BatchIntradayDataItem implements \JsonSerializable
     {
         return new self(
             code: Hydrate::string($data['code'] ?? null) ?? '',
+            date: Hydrate::string($data['date'] ?? null),
             open: Hydrate::float($data['open'] ?? null),
             high: Hydrate::float($data['high'] ?? null),
             low: Hydrate::float($data['low'] ?? null),
@@ -93,6 +96,7 @@ final class BatchIntradayDataItem implements \JsonSerializable
     {
         return [
             'code' => $this->code,
+            'date' => $this->date,
             'open' => $this->open,
             'high' => $this->high,
             'low' => $this->low,

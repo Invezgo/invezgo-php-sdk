@@ -17,11 +17,13 @@ final class OrderBookResponse implements \JsonSerializable
      * @param string $code Stock code; carries the market suffix when market is not RG (e.g. BBCANG)
      * @param list<array<string, float|null>> $bid Buy queue levels, ordered from level 1 (best bid)
      * @param list<array<string, float|null>> $offer Sell queue levels, ordered from level 1 (best offer)
+     * @param string|null $date Time of the data in WIB (UTC+7), not UTC. Live data shows when it was retrieved; stored data shows when it was recorded. Null when no data is available.
      */
     public function __construct(
         public readonly string $code,
         public readonly array $bid,
         public readonly array $offer,
+        public readonly ?string $date = null,
     ) {
     }
 
@@ -36,6 +38,7 @@ final class OrderBookResponse implements \JsonSerializable
             code: Hydrate::string($data['code'] ?? null) ?? '',
             bid: Hydrate::list($data['bid'] ?? null, static fn (mixed $x0) => Hydrate::map($x0, static fn (mixed $x1) => Hydrate::float($x1)) ?? []) ?? [],
             offer: Hydrate::list($data['offer'] ?? null, static fn (mixed $x0) => Hydrate::map($x0, static fn (mixed $x1) => Hydrate::float($x1)) ?? []) ?? [],
+            date: Hydrate::string($data['date'] ?? null),
         );
     }
 
@@ -48,6 +51,7 @@ final class OrderBookResponse implements \JsonSerializable
     {
         return [
             'code' => $this->code,
+            'date' => $this->date,
             'bid' => $this->bid,
             'offer' => $this->offer,
         ];

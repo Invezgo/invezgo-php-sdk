@@ -9,6 +9,7 @@ use GuzzleHttp\ClientInterface;
 use Invezgo\Cache\CacheConfig;
 use Invezgo\Cache\LruCache;
 use Invezgo\Http\Transport;
+use Invezgo\Realtime\RealtimeClient;
 use Invezgo\Resource\AlertsResource;
 use Invezgo\Resource\AnalysisResource;
 use Invezgo\Resource\BatchResource;
@@ -73,6 +74,10 @@ final class InvezgoClient
 
     private readonly Transport $transport;
 
+    private readonly string $apiKey;
+
+    private readonly string $baseUrl;
+
     /**
      * @param string                $apiKey            Primary API key (https://invezgo.com/id/setting/api).
      * @param list<string>          $additionalApiKeys Fallback keys, used in order when a key gets HTTP 429
@@ -107,10 +112,12 @@ final class InvezgoClient
             }
         }
         $config = $cache instanceof CacheConfig ? $cache : new CacheConfig();
+        $this->apiKey = $keys[0];
+        $this->baseUrl = rtrim($baseUrl ?? self::DEFAULT_BASE_URL, '/');
 
         $this->transport = new Transport(
             $keys,
-            rtrim($baseUrl ?? self::DEFAULT_BASE_URL, '/'),
+            $this->baseUrl,
             $timeout,
             $httpClient ?? new Client(),
             $cache === false ? null : new LruCache($config->maxEntries, $config->maxBytes),
@@ -135,5 +142,18 @@ final class InvezgoClient
     public function clearCache(): void
     {
         $this->transport->clearCache();
+    }
+
+    /**
+     * WebSocket client for real-time trades and order book (Elite plan), using the primary API key and
+     * `baseUrl` with https→wss / http→ws + `/ws`. Requires `composer require phrity/websocket:^3.0`.
+     *
+     * @param bool $reconnect Reconnect automatically after a lost connection.
+     *
+     * @throws Exception\InvezgoException When phrity/websocket is not installed.
+     */
+    public function realtime(bool $reconnect = true): RealtimeClient
+    {
+        return new RealtimeClient($this->apiKey, (string) preg_replace('#^http#i', 'ws', $this->baseUrl) . '/ws', $reconnect);
     }
 }

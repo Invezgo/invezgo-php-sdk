@@ -17,10 +17,11 @@ final class UpdateAlertRequest implements \JsonSerializable
      * @param string $name
      * @param string $every
      * @param string $send
-     * @param string $formula Formula alert (sama dengan batas formula screener)
+     * @param string $formula Formula alert, maksimal 2048 karakter (sama dengan formula screener)
      * @param string|null $description
      * @param list<string>|null $category Kategori indeks saham yang ingin disaring (opsional, bisa multi seperti ["SYARIAH", "IDXENERGY"])
      * @param list<string>|null $scope
+     * @param string|null $channel Tujuan pengiriman alert. TELEGRAM (default), WEBHOOK (webhook akun, domain `alert`), atau MCP (MCP Events untuk agen AI). WEBHOOK dan MCP membutuhkan paket PRIME, MAX, atau ELITE. Jika tidak dikirim, channel alert tidak berubah.
      */
     public function __construct(
         public readonly string $name,
@@ -30,6 +31,7 @@ final class UpdateAlertRequest implements \JsonSerializable
         public readonly ?string $description = null,
         public readonly ?array $category = null,
         public readonly ?array $scope = null,
+        public readonly ?string $channel = null,
     ) {
     }
 
@@ -48,6 +50,7 @@ final class UpdateAlertRequest implements \JsonSerializable
             description: Hydrate::string($data['description'] ?? null),
             category: Hydrate::list($data['category'] ?? null, static fn (mixed $x0) => Hydrate::string($x0) ?? ''),
             scope: Hydrate::list($data['scope'] ?? null, static fn (mixed $x0) => Hydrate::string($x0) ?? ''),
+            channel: Hydrate::string($data['channel'] ?? null),
         );
     }
 
@@ -60,12 +63,21 @@ final class UpdateAlertRequest implements \JsonSerializable
     {
         $out = [];
         $out['name'] = $this->name;
-        $out['description'] = $this->description;
-        $out['category'] = $this->category;
+        if ($this->description !== null) {
+            $out['description'] = $this->description;
+        }
+        if ($this->category !== null) {
+            $out['category'] = $this->category;
+        }
         $out['every'] = $this->every;
         $out['send'] = $this->send;
         $out['formula'] = $this->formula;
-        $out['scope'] = $this->scope;
+        if ($this->scope !== null) {
+            $out['scope'] = $this->scope;
+        }
+        if ($this->channel !== null) {
+            $out['channel'] = $this->channel;
+        }
         return $out;
     }
 

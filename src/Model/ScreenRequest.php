@@ -14,7 +14,7 @@ use Invezgo\Internal\Hydrate;
 final class ScreenRequest implements \JsonSerializable
 {
     /**
-     * @param string $formula Formula untuk screening saham
+     * @param string $formula Formula untuk screening saham - Mengacu pada [Variabel Formula](https://docs.invezgo.com/features/formula-variables/)
      * @param list<string>|null $category Kategori indeks saham yang ingin disaring (opsional, bisa multi seperti ["SYARIAH", "IDXENERGY"])
      */
     public function __construct(
@@ -45,7 +45,9 @@ final class ScreenRequest implements \JsonSerializable
     {
         $out = [];
         $out['formula'] = $this->formula;
-        $out['category'] = $this->category;
+        if ($this->category !== null) {
+            $out['category'] = $this->category;
+        }
         return $out;
     }
 

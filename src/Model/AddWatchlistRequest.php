@@ -56,7 +56,9 @@ final class AddWatchlistRequest implements \JsonSerializable
         $out['group'] = $this->group;
         $out['code'] = $this->code;
         $out['price'] = $this->price;
-        $out['note'] = $this->note;
+        if ($this->note !== null) {
+            $out['note'] = $this->note;
+        }
         $out['scope'] = $this->scope;
         return $out;
     }

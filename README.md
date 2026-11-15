@@ -21,6 +21,8 @@ SDK resmi untuk [Invezgo API](https://invezgo.com), penyedia data pasar modal In
 - [Penanganan Error](#penanganan-error)
 - [Integrasi Laravel](#integrasi-laravel)
 - [Pagination](#pagination)
+- [Webhook](#webhook)
+- [WebSocket (Real-time)](#websocket-real-time)
 - [Praktik yang Disarankan](#praktik-yang-disarankan)
 - [Pengembangan](#pengembangan)
 - [Dukungan](#dukungan)
@@ -346,6 +348,83 @@ while ($page !== null) {
     $page = $res->nextPage;
 }
 ```
+
+## Webhook
+
+Webhook mengirim notifikasi `POST` ke server Anda saat data Invezgo diperbarui (`update.*`), saat Live Alert terpicu (`alert.*`), serta peringatan kuota (`quota.*`). Fitur ini masih beta. `Webhook::verify()` memeriksa header `X-Invezgo-Timestamp` (toleransi 300 detik) dan `X-Invezgo-Signature` (HMAC-SHA256 dengan perbandingan waktu-konstan), lalu mengembalikan `WebhookEvent`. Fungsi ini tidak memerlukan client maupun API key.
+
+Gunakan body mentah sebelum di-parse sebagai JSON. Nama header dicocokkan tanpa memperhatikan huruf besar/kecil, dan nilainya boleh berupa string atau array (format PSR-7 maupun Laravel).
+
+```php
+use Invezgo\Exception\WebhookVerificationException;
+use Invezgo\Webhook\AlertTriggeredData;
+use Invezgo\Webhook\UpdateData;
+use Invezgo\Webhook\Webhook;
+
+// Laravel: $request->getContent() dan $request->headers->all()
+try {
+    $event = Webhook::verify(file_get_contents('php://input'), getallheaders(), getenv('INVEZGO_WEBHOOK_SECRET'));
+} catch (WebhookVerificationException $e) {
+    http_response_code($e->reason === 'signature' ? 401 : 400); // reason: timestamp, signature, atau payload
+    exit;
+}
+
+http_response_code(204); // balas dalam 10 detik, proses event di background; deduplikasi dengan $event->id
+
+$data = $event->typedData();
+match ($event->name()) {
+    'update.summary' => refreshSummary($data instanceof UpdateData ? $data->date : null),
+    'alert.triggered' => notify($data instanceof AlertTriggeredData ? $data->stocksIn : []),
+    default => null, // abaikan event yang belum dikenali
+};
+```
+
+`typedData()` mengembalikan `UpdateData`, `AlertTriggeredData`, `AlertDisabledData`, `PingData`, atau `QuotaData` sesuai event, dan `null` untuk event yang belum dikenali. Data mentah tetap tersedia di `$event->data`. Gunakan `Webhook::parse($rawBody)` untuk membaca body yang sudah diverifikasi.
+
+## WebSocket (Real-time)
+
+WebSocket menyalurkan running trade dan order book secara real-time melalui `wss://api.invezgo.com/ws`. Fitur ini masih beta dan memerlukan paket Developer **Elite**. Pasang pustaka tambahan berikut:
+
+```bash
+composer require phrity/websocket:^3.0
+```
+
+`$client->realtime()` memakai API key utama dan URL yang diturunkan dari `baseUrl`. API key dikirim melalui header `Authorization`, tidak melalui URL. `run()` bersifat blocking dan memanggil callback hingga `close()` dipanggil.
+
+```php
+use Invezgo\Realtime\OrderbookMessage;
+use Invezgo\Realtime\TradesMessage;
+
+$ws = $client->realtime();
+
+$ws->onTrades(function (TradesMessage $msg) {
+    foreach ($msg->data as $trade) {
+        echo $trade->code, ' ', $trade->price, ' ', $trade->lot, ' ', $trade->side, PHP_EOL;
+    }
+})->onOrderbook(function (OrderbookMessage $msg) {
+    echo $msg->code, ' ', $msg->side, ' ', count($msg->levels), ' level', PHP_EOL;
+})->onReconnect(function (int $attempts) use ($client) {
+    // isi data yang terlewat melalui REST, misalnya $client->analysis->getStockRunningTrade(...)
+});
+
+$ws->subscribeTrades(['BBCA', 'TLKM'], minLot: 500);
+$ws->subscribeOrderbook(['BBCA']);
+$ws->run();
+```
+
+| Method | Fungsi |
+|---|---|
+| `subscribeTrades(?array $codes = null, ?int $minLot = null, ?int $minValue = null)` | Running trade; `null` untuk seluruh saham, maksimal 200 kode |
+| `subscribeOrderbook(array $codes)` | Order book, wajib diisi, maksimal 20 kode |
+| `unsubscribe(string $channel, ?array $codes = null)` | Berhenti berlangganan `trades` atau `orderbook` |
+| `ping()`, `close()` | Memeriksa koneksi; menutup koneksi dan mengakhiri `run()` |
+
+Callback yang tersedia: `onConnected`, `onSubscribed`, `onTrades`, `onOrderbook`, `onPong`, `onLagged`, `onError`, `onMessage` (seluruh pesan, termasuk tipe yang belum dikenali), `onClose`, dan `onReconnect`.
+
+- Langganan disimpan oleh client dan dikirim setelah pesan `connected`, termasuk setelah sambung ulang. Kode saham diubah menjadi huruf besar.
+- Sambung ulang otomatis menggunakan jeda 1, 2, 4, 8, 16, hingga 30 detik. Nonaktifkan dengan `$client->realtime(reconnect: false)`.
+- Sambung ulang tidak dilakukan setelah `close()`, kode penutupan `4400` (pesan klien tidak valid), atau penolakan handshake `401` (`AuthenticationException`) dan `403` (`PaymentRequiredException`, paket Elite tidak aktif).
+- Client juga dapat dibuat tanpa `InvezgoClient`: `new RealtimeClient($apiKey, $url)`.
 
 ## Praktik yang Disarankan
 

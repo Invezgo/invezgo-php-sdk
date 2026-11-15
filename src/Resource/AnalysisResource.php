@@ -801,6 +801,7 @@ final class AnalysisResource
      *
      * Response:
      * - code: Stock code (with the market suffix when market is not RG, e.g. BBCANG)
+     * - date: Time of the data (WIB). For realtime data, when it was retrieved; otherwise when it was recorded. null when there is no data
      * - bid: List of buy queue levels, ordered from level 1 (best price); each item's keys use the level number n:
      *   - bid<n>price: Bid price at level n (Rupiah)
      *   - bid<n>lot: Number of lots at level n
@@ -911,6 +912,7 @@ final class AnalysisResource
      *
      * Response:
      * - code: Stock code
+     * - date: Time of the data (WIB). For realtime data, when it was retrieved; otherwise when it was recorded, or 16:15 (market close) for daily data. null when there is no data
      * - open: Opening price (Rupiah)
      * - high: Highest price (Rupiah)
      * - low: Lowest price (Rupiah)
@@ -972,6 +974,7 @@ final class AnalysisResource
      *
      * Response:
      * - code: Index code
+     * - date: Time of the data (WIB). For realtime data, when it was retrieved; otherwise 16:15 (market close) of that trading day. null when there is no data
      * - open: Index opening value
      * - high: Index highest value
      * - low: Index lowest value
@@ -3454,27 +3457,55 @@ final class AnalysisResource
      *
      * Get a company's income statement flow of funds (Sankey) per period: revenue by product/service, cost of revenue and its breakdown, operating expenses, operating profit, profit before tax, tax, net profit and profit attributable to the parent.
      *
-     * The structure and direction of every flow follow the calculation arcs of the issuer's IDX XBRL taxonomy industry template. Revenue detail comes from the revenue-by-type note and cost detail from the cost of goods sold note.
-     *
-     * Each period is cumulative from the start of the fiscal year (year to date), as officially filed with IDX and the same as financial-statement: Q1 = 3 months, Q2 = 6 months, Q3 = 9 months, FY = 12 months; values are not netted against the previous period. type=Q lists the quarterly reports (Q1-Q3) without the annual report.
+     * Report periods are cumulative from the start of the fiscal year (year to date), as officially filed with IDX and the same as financial-statement: Q1 = 3 months, Q2 = 6 months, Q3 = 9 months, FY = 12 months; values are not netted against the previous period.
      *
      * Response:
-     * - columns: Periods from the latest (label, year, period)
-     * - role: IDX taxonomy income statement role used, e.g. "1321000"
+     * - columns: List of report periods from the latest, up to `limit` periods, each item contains:
+     *   - label: Period label, e.g. "Q2 2026" or "FY 2025"
+     *   - year: Fiscal year
+     *   - period: Period code (FY, Q1, Q2, Q3, Q4)
+     * - role: IDX taxonomy income statement role used, e.g. "1311000"
      * - sector: Industry template (general, property, infrastructure, financesharia, securities, insurance, financing)
      * - currency: Currency of the values (IDR)
      * - periods: Flow of funds per period, same order as `columns`, each item contains:
-     *   - label, year, period: Report period, e.g. "Q2 2026" (6 months) or "FY 2025"
-     *   - basis: quarter (Q1, 3 months), ytd (Q2/Q3, cumulative from the start of the fiscal year), annual (FY)
-     *   - nodes: Nodes (id, taxonomy concept, label_id, label_en, kind: revenue|cost|income|profit|loss|offset, value)
-     *   - links: Flows between nodes (source, target, value > 0); every node balances (in = out)
-     *   - bridge: Operating profit to net profit bridge (id, label_id, label_en, kind: total|delta, value)
-     *   - checks: Reconciliation of the detail against the statement: statement, segments, cogs (ok, residual, mismatch, none) and unmapped_rows
+     *   - label: Period label, e.g. "Q2 2026" or "FY 2025"
+     *   - year: Fiscal year
+     *   - period: Period code (FY, Q1, Q2, Q3, Q4)
+     *   - basis: Period basis: quarter (Q1, 3 months), ytd (cumulative from the start of the fiscal year, e.g. Q2 = 6 months), annual (FY)
+     *   - nodes: Sankey diagram nodes, each item contains:
+     *     - id: Node ID
+     *     - concept: IDX taxonomy concept; null if the node is not a taxonomy concept
+     *     - label_id: Node name in Indonesian
+     *     - label_en: Node name in English
+     *     - kind: Node type (revenue, cost, income, profit, loss, offset)
+     *     - value: Node value (Rupiah)
+     *   - links: Flows between nodes; every node balances (in = out), each item contains:
+     *     - source: Source node ID
+     *     - target: Target node ID
+     *     - value: Flow value (Rupiah, always > 0)
+     *   - bridge: Operating profit to net profit bridge, each item contains:
+     *     - id: Item ID
+     *     - label_id: Item name in Indonesian
+     *     - label_en: Item name in English
+     *     - kind: total = profit subtotal, delta = item contribution between two subtotals
+     *     - value: Item value (Rupiah; a negative delta reduces profit)
+     *   - checks: Reconciliation of the detail against the statement, contains:
+     *     - statement: ok, or residual if the detail does not add up to the statement total
+     *     - segments: Revenue-by-type detail: ok, residual, or none if there is no note
+     *     - cogs: Cost of revenue detail: ok, residual, mismatch (differs from the note), or none if there is no note
+     *     - attribution: mismatch if the attributed profit does not add up to net profit (only present in that case)
+     *     - sign_corrected: Number of values whose sign was corrected (only present when any)
+     *     - unmapped_rows: Number of statement rows not mapped to the taxonomy
      *
      * Update: Real-time according to each company's report
      *
      * Limited to data for the last 2 years
      * Initial Data: 2020-01-01 [ENTERPRISE]
+     *
+     * Notes:
+     * - The structure and direction of every flow follow the calculation arcs of the issuer's IDX XBRL taxonomy industry template
+     * - Revenue detail comes from the revenue-by-type note, cost detail from the cost of goods sold note
+     * - type=Q lists every quarterly report without the annual report (FY)
      *
      * Route: `GET /analysis/flow-of-funds/{code}` — cached (`ttl`).
      *

@@ -31,7 +31,11 @@
     },
     "require-dev": {
         "phpstan/phpstan": "^2.0",
-        "phpunit/phpunit": "^10.5"
+        "phpunit/phpunit": "^10.5",
+        "phrity/websocket": "^3.0"
+    },
+    "suggest": {
+        "phrity/websocket": "Required for the real-time WebSocket client (InvezgoClient::realtime())"
     },
     "autoload": {
         "psr-4": {

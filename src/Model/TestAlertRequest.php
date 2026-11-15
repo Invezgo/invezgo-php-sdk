@@ -45,7 +45,9 @@ final class TestAlertRequest implements \JsonSerializable
     {
         $out = [];
         $out['formula'] = $this->formula;
-        $out['category'] = $this->category;
+        if ($this->category !== null) {
+            $out['category'] = $this->category;
+        }
         return $out;
     }
 

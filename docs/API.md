@@ -1328,11 +1328,11 @@ Batch endpoints: fetch many stocks in one request (counted as 1 request).
 $client->batch->getOrderBook(string $code, Market|string|null $market = null, string|\DateTimeInterface|null $date = null, ?string $time = null): list<BatchOrderBookItem>
 ```
 
-Get order book data for multiple stocks at once in a single request (up to 10 codes on the MAX plan, 25 on the ELITE plan).
+Get order book data for multiple stocks at once in a single request (up to 20 codes on the MAX plan, 50 on the ELITE plan).
 
 | Parameter | Tipe | Wajib | Keterangan |
 |---|---|---|---|
-| `$code` | `string` | ya | Daftar kode saham yang dipisahkan `\|` atau koma, mis. `BBCA\|GOTO\|TLKM`. Maksimal 10 kode (paket MAX) atau 25 kode (paket ELITE) per request. |
+| `$code` | `string` | ya | Daftar kode saham yang dipisahkan `\|` atau koma, mis. `BBCA\|GOTO\|TLKM`. Maksimal 20 kode (paket MAX) atau 50 kode (paket ELITE) per request. |
 | `$market` | `Market\|string\|null` | tidak | Jenis pasar: `RG` = Pasar Reguler, `NG` = Pasar Negosiasi, `TN` = Pasar Tunai. Gunakan `RG` untuk analisis pergerakan harga pada umumnya. Default `RG` bila tidak diisi. Default: `RG`. |
 | `$date` | `string\|\DateTimeInterface\|null` | tidak | Tanggal order book historis (`YYYY-MM-DD`), data tersedia mulai `2026-03-25`. Kirim bersama `time`; kosongkan keduanya untuk data realtime. |
 | `$time` | `string\|null` | tidak | Jam order book dalam WIB, format `HH:mm` dengan presisi menit. Kirim bersama `date`. |
@@ -1348,11 +1348,11 @@ Mengembalikan: `list<`[`BatchOrderBookItem`](#model-batchorderbookitem)`>`
 $client->batch->getIntradayData(string $code, Market|string|null $market = null, string|\DateTimeInterface|null $date = null): list<BatchIntradayDataItem>
 ```
 
-Get compact intraday price data for multiple stocks at once in a single request (up to 10 codes on the MAX plan, 25 on the ELITE plan).
+Get compact intraday price data for multiple stocks at once in a single request (up to 20 codes on the MAX plan, 50 on the ELITE plan).
 
 | Parameter | Tipe | Wajib | Keterangan |
 |---|---|---|---|
-| `$code` | `string` | ya | Daftar kode saham yang dipisahkan `\|` atau koma, mis. `BBCA\|GOTO\|TLKM`. Maksimal 10 kode (paket MAX) atau 25 kode (paket ELITE) per request. |
+| `$code` | `string` | ya | Daftar kode saham yang dipisahkan `\|` atau koma, mis. `BBCA\|GOTO\|TLKM`. Maksimal 20 kode (paket MAX) atau 50 kode (paket ELITE) per request. |
 | `$market` | `Market\|string\|null` | tidak | Jenis pasar: `RG` = Pasar Reguler, `NG` = Pasar Negosiasi, `TN` = Pasar Tunai. Gunakan `RG` untuk analisis pergerakan harga pada umumnya. Default `RG` bila tidak diisi. Default: `RG`. |
 | `$date` | `string\|\DateTimeInterface\|null` | tidak | Tanggal data historis (`YYYY-MM-DD`). Kosongkan untuk data realtime hari ini. |
 
@@ -1367,11 +1367,11 @@ Mengembalikan: `list<`[`BatchIntradayDataItem`](#model-batchintradaydataitem)`>`
 $client->batch->getIntradayIndex(string $code): list<BatchIntradayIndexItem>
 ```
 
-Get compact intraday data for multiple indexes at once in a single request (up to 10 codes on the MAX plan, 25 on the ELITE plan).
+Get compact intraday data for multiple indexes at once in a single request (up to 20 codes on the MAX plan, 50 on the ELITE plan).
 
 | Parameter | Tipe | Wajib | Keterangan |
 |---|---|---|---|
-| `$code` | `string` | ya | Daftar kode indeks yang dipisahkan `\|` atau koma, mis. `COMPOSITE\|LQ45\|IDX30`. Maksimal 10 kode (paket MAX) atau 25 kode (paket ELITE) per request. Daftar indeks tersedia di `/analysis/list/index`. |
+| `$code` | `string` | ya | Daftar kode indeks yang dipisahkan `\|` atau koma, mis. `COMPOSITE\|LQ45\|IDX30`. Maksimal 20 kode (paket MAX) atau 50 kode (paket ELITE) per request. Daftar indeks tersedia di `/analysis/list/index`. |
 
 Mengembalikan: `list<`[`BatchIntradayIndexItem`](#model-batchintradayindexitem)`>`
 
@@ -2244,7 +2244,7 @@ Semua model ada di namespace `Invezgo\Model`, bersifat immutable (`public readon
 
 | Field | Tipe | Keterangan |
 |---|---|---|
-| `formula` | `string` | Formula untuk screening saham |
+| `formula` | `string` | Formula untuk screening saham - Mengacu pada [Variabel Formula](https://docs.invezgo.com/features/formula-variables/) |
 | `category` | `list<string>\|null` | Kategori indeks saham yang ingin disaring (opsional, bisa multi seperti ["SYARIAH", "IDXENERGY"]) |
 
 <a id="model-savescreenerrequest"></a>
@@ -2335,7 +2335,8 @@ Semua model ada di namespace `Invezgo\Model`, bersifat immutable (`public readon
 | `every` | `string` |  |
 | `send` | `string` |  |
 | `scope` | `list<string>\|null` |  |
-| `formula` | `string` | Formula alert (sama dengan batas formula screener) |
+| `formula` | `string` | Formula alert, maksimal 2048 karakter (sama dengan formula screener) |
+| `channel` | `string\|null` | Tujuan pengiriman alert. TELEGRAM (default), WEBHOOK (webhook akun, domain `alert`), atau MCP (MCP Events untuk agen AI). WEBHOOK dan MCP membutuhkan paket PRIME, MAX, atau ELITE. |
 
 <a id="model-testalertrequest"></a>
 ### `TestAlertRequest`
@@ -2355,8 +2356,9 @@ Semua model ada di namespace `Invezgo\Model`, bersifat immutable (`public readon
 | `category` | `list<string>\|null` | Kategori indeks saham yang ingin disaring (opsional, bisa multi seperti ["SYARIAH", "IDXENERGY"]) |
 | `every` | `string` |  |
 | `send` | `string` |  |
-| `formula` | `string` | Formula alert (sama dengan batas formula screener) |
+| `formula` | `string` | Formula alert, maksimal 2048 karakter (sama dengan formula screener) |
 | `scope` | `list<string>\|null` |  |
+| `channel` | `string\|null` | Tujuan pengiriman alert. TELEGRAM (default), WEBHOOK (webhook akun, domain `alert`), atau MCP (MCP Events untuk agen AI). WEBHOOK dan MCP membutuhkan paket PRIME, MAX, atau ELITE. Jika tidak dikirim, channel alert tidak berubah. |
 
 <a id="model-notetraderequest"></a>
 ### `NoteTradeRequest`
@@ -2846,6 +2848,7 @@ Graph point.
 | Field | Tipe | Keterangan |
 |---|---|---|
 | `code` | `string` | Stock code; carries the market suffix when market is not RG (e.g. BBCANG) |
+| `date` | `string\|null` | Time of the data in WIB (UTC+7), not UTC. Live data shows when it was retrieved; stored data shows when it was recorded. Null when no data is available. |
 | `bid` | `list<array<string, float\|null>>` | Buy queue levels, ordered from level 1 (best bid) |
 | `offer` | `list<array<string, float\|null>>` | Sell queue levels, ordered from level 1 (best offer) |
 
@@ -2869,6 +2872,7 @@ Graph point.
 | Field | Tipe | Keterangan |
 |---|---|---|
 | `code` | `string` | Stock code (without market suffix) |
+| `date` | `string\|null` | Time of the data in WIB (UTC+7), not UTC. Live data shows when it was retrieved; stored data shows when it was recorded, or 16:15 (market close) for daily data. Null when no data is available. |
 | `open` | `float\|null` | Opening price (Rupiah) |
 | `high` | `float\|null` | Highest price (Rupiah) |
 | `low` | `float\|null` | Lowest price (Rupiah) |
@@ -2895,6 +2899,7 @@ Index snapshot. During trading hours a key is omitted when it is not available; 
 | Field | Tipe | Keterangan |
 |---|---|---|
 | `code` | `string` | Index code |
+| `date` | `string\|null` | Time of the data in WIB (UTC+7), not UTC. Live data shows when it was retrieved; stored data shows 16:15 (market close) of that trading day. Null when no data is available. |
 | `open` | `float\|null` | Index opening value; may be a numeric string outside trading hours |
 | `high` | `float\|null` | Index highest value; may be a numeric string outside trading hours |
 | `low` | `float\|null` | Index lowest value; may be a numeric string outside trading hours |
@@ -4062,6 +4067,7 @@ Corporate action.
 | Field | Tipe | Keterangan |
 |---|---|---|
 | `code` | `string` | Stock code; may carry the market suffix when market is not RG (e.g. BBCANG); empty string when not available |
+| `date` | `string\|null` | Time of the data in WIB (UTC+7), not UTC. Live data shows when it was retrieved; stored data shows when it was recorded. Null when no data is available. |
 | `bid` | `list<array<string, float\|null>>` | Buy queue levels, ordered from level 1 (best bid) |
 | `offer` | `list<array<string, float\|null>>` | Sell queue levels, ordered from level 1 (best offer) |
 
@@ -4071,6 +4077,7 @@ Corporate action.
 | Field | Tipe | Keterangan |
 |---|---|---|
 | `code` | `string` | Stock code (carries the market suffix when market is not RG) |
+| `date` | `string\|null` | Time of the data in WIB (UTC+7), not UTC. Live data shows when it was retrieved; stored data shows 16:15 (market close) of that trading day. Null when no data is available. |
 | `open` | `float\|null` | Opening price (Rupiah) |
 | `high` | `float\|null` | Highest price (Rupiah) |
 | `low` | `float\|null` | Lowest price (Rupiah) |
@@ -4095,6 +4102,7 @@ Corporate action.
 | Field | Tipe | Keterangan |
 |---|---|---|
 | `code` | `string` | Index code |
+| `date` | `string\|null` | Time of the data in WIB (UTC+7), not UTC. Live data shows when it was retrieved; stored data shows 16:15 (market close) of that trading day. Null when no data is available. |
 | `open` | `float\|null` | Index opening value |
 | `high` | `float\|null` | Index highest value |
 | `low` | `float\|null` | Index lowest value |

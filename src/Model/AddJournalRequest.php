@@ -71,7 +71,9 @@ final class AddJournalRequest implements \JsonSerializable
         $out['lot'] = $this->lot;
         $out['fee'] = $this->fee;
         $out['price'] = $this->price;
-        $out['status'] = $this->status;
+        if ($this->status !== null) {
+            $out['status'] = $this->status;
+        }
         $out['scope'] = $this->scope;
         $out['note'] = $this->note;
         return $out;

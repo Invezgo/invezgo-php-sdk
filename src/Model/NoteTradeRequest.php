@@ -41,7 +41,9 @@ final class NoteTradeRequest implements \JsonSerializable
     public function toArray(): array
     {
         $out = [];
-        $out['note'] = $this->note;
+        if ($this->note !== null) {
+            $out['note'] = $this->note;
+        }
         return $out;
     }
 
