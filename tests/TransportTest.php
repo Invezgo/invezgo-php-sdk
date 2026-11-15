@@ -126,7 +126,7 @@ final class TransportTest extends TestCase
         self::assertSame('POST', $post->getMethod());
         self::assertSame('application/json', $post->getHeaderLine('Content-Type'));
         self::assertSame(
-            ['group' => str_repeat('g', 25), 'code' => 'BBCA', 'price' => 9900, 'note' => null, 'scope' => ['web']],
+            ['group' => str_repeat('g', 25), 'code' => 'BBCA', 'price' => 9900, 'scope' => ['web']],
             json_decode((string) $post->getBody(), true),
         );
     }
