@@ -12,8 +12,8 @@ use Invezgo\Internal\Hydrate;
 final class SubscribedMessage
 {
     /**
-     * @param string            $channel  "trades" or "orderbook".
-     * @param list<string>|'*'  $codes    Subscribed codes, or "*" for every stock.
+     * @param string            $channel  "trades", "orderbook", "stock" or "index".
+     * @param list<string>|'*'  $codes    Subscribed codes, or "*" for every stock or index.
      * @param int|null          $minLot   Active lot filter (trades only).
      * @param int|null          $minValue Active value filter in Rupiah (trades only).
      */

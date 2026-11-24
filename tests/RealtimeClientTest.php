@@ -9,7 +9,9 @@ use Invezgo\Exception\AuthenticationException;
 use Invezgo\Exception\ConnectionException;
 use Invezgo\Exception\PaymentRequiredException;
 use Invezgo\InvezgoClient;
+use Invezgo\Realtime\IndexMessage;
 use Invezgo\Realtime\OrderbookMessage;
+use Invezgo\Realtime\StockMessage;
 use Invezgo\Realtime\RealtimeClient;
 use Invezgo\Realtime\Trade;
 use Invezgo\Realtime\TradesMessage;
@@ -59,6 +61,10 @@ final class RealtimeClientTest extends \PHPUnit\Framework\TestCase
             ['type' => 'brand_new', 'x' => 1],
             ['type' => 'lagged', 'missed' => 120],
             ['type' => 'orderbook', 'code' => 'BBCA', 'side' => 'bid', 'levels' => [[9875, 120]], 'seq' => null],
+            ['type' => 'stock', 'code' => 'BBCA', 'last' => 5650.0, 'prev' => 5550.0, 'open' => null, 'change_pct' => 1.8,
+                'volume' => 114428700, 'iev' => 7927800, 'time' => '110436', 'seq' => 4408664],
+            ['type' => 'index', 'code' => 'Investor33', 'last' => 5221.553, 'change_pct' => 1.462,
+                'volume' => 20865566335, 'time' => '110512'],
             ['type' => 'trades', 'ts' => 1793240653184, 'data' => [
                 ['id' => '202610290000255958', 'time' => '092413', 'code' => 'ISAT', 'price' => 1465.0, 'lot' => 9,
                     'value' => 1318500, 'change' => -105.0, 'side' => 'buy'],
@@ -67,9 +73,14 @@ final class RealtimeClientTest extends \PHPUnit\Framework\TestCase
         $ws = $this->realtime([$socket]);
         $ws->subscribeTrades([' bbca', 'tlkm', 'BBCA'], minLot: 500);
         $ws->subscribeOrderbook(['bbca']);
+        $ws->subscribeStock(['bbca']);
+        $ws->subscribeIndex(['composite', 'LQ45']);
+        $ws->unsubscribe('index', ['lq45']);
 
         $types = [];
         $orderbook = null;
+        $stock = null;
+        $index = null;
         $trades = null;
         $lagged = null;
         $closed = null;
@@ -84,6 +95,12 @@ final class RealtimeClientTest extends \PHPUnit\Framework\TestCase
             ->onOrderbook(function (OrderbookMessage $m) use (&$orderbook): void {
                 $orderbook = $m;
             })
+            ->onStock(function (StockMessage $m) use (&$stock): void {
+                $stock = $m;
+            })
+            ->onIndex(function (IndexMessage $m) use (&$index): void {
+                $index = $m;
+            })
             ->onTrades(function (TradesMessage $m) use (&$trades, $ws): void {
                 $trades = $m;
                 $ws->close();
@@ -96,8 +113,16 @@ final class RealtimeClientTest extends \PHPUnit\Framework\TestCase
         self::assertSame([
             ['op' => 'subscribe', 'channel' => 'trades', 'codes' => ['BBCA', 'TLKM'], 'min_lot' => 500],
             ['op' => 'subscribe', 'channel' => 'orderbook', 'codes' => ['BBCA']],
+            ['op' => 'subscribe', 'channel' => 'stock', 'codes' => ['BBCA']],
+            ['op' => 'subscribe', 'channel' => 'index', 'codes' => ['COMPOSITE']],
         ], $socket->sent);
-        self::assertSame(['connected', 'brand_new', 'lagged', 'orderbook', 'trades'], $types);
+        self::assertSame(['connected', 'brand_new', 'lagged', 'orderbook', 'stock', 'index', 'trades'], $types);
+        self::assertEquals(new StockMessage(
+            'BBCA', 5650.0, 5550.0, null, null, null, null, 1.8, 114428700, null, null, null, null, 7927800, '110436', 4408664,
+        ), $stock);
+        self::assertEquals(new IndexMessage(
+            'Investor33', 5221.553, null, null, null, null, null, 1.462, 20865566335, null, null, '110512',
+        ), $index);
         self::assertSame(120, $lagged);
         self::assertEquals(new OrderbookMessage('BBCA', 'bid', [[9875, 120]], null), $orderbook);
         self::assertEquals(new TradesMessage(1793240653184, [
@@ -222,7 +247,13 @@ final class RealtimeClientTest extends \PHPUnit\Framework\TestCase
 
         $ws->subscribeOrderbook($codes(20));
         $ws->subscribeTrades($codes(200));
+        $ws->subscribeStock($codes(50));
+        $ws->subscribeIndex($codes(100));
         foreach ([
+            fn () => $ws->subscribeStock([]),
+            fn () => $ws->subscribeStock(['NEW']),
+            fn () => $ws->subscribeIndex(['NEW']),
+            fn () => $ws->subscribeIndex([]),
             fn () => $ws->subscribeOrderbook([]),
             fn () => $ws->subscribeOrderbook(['NEW']),
             fn () => $ws->subscribeTrades(['NEW']),

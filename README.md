@@ -383,7 +383,7 @@ match ($event->name()) {
 
 ## WebSocket (Real-time)
 
-WebSocket menyalurkan running trade dan order book secara real-time melalui `wss://api.invezgo.com/ws`. Fitur ini masih beta dan memerlukan paket Developer **Elite**. Pasang pustaka tambahan berikut:
+WebSocket menyalurkan running trade, order book, quote saham, dan indeks secara real-time melalui `wss://api.invezgo.com/ws`. Fitur ini masih beta dan memerlukan paket Developer **Elite**. Pasang pustaka tambahan berikut:
 
 ```bash
 composer require phrity/websocket:^3.0
@@ -392,7 +392,9 @@ composer require phrity/websocket:^3.0
 `$client->realtime()` memakai API key utama dan URL yang diturunkan dari `baseUrl`. API key dikirim melalui header `Authorization`, tidak melalui URL. `run()` bersifat blocking dan memanggil callback hingga `close()` dipanggil.
 
 ```php
+use Invezgo\Realtime\IndexMessage;
 use Invezgo\Realtime\OrderbookMessage;
+use Invezgo\Realtime\StockMessage;
 use Invezgo\Realtime\TradesMessage;
 
 $ws = $client->realtime();
@@ -403,12 +405,18 @@ $ws->onTrades(function (TradesMessage $msg) {
     }
 })->onOrderbook(function (OrderbookMessage $msg) {
     echo $msg->code, ' ', $msg->side, ' ', count($msg->levels), ' level', PHP_EOL;
+})->onStock(function (StockMessage $msg) {
+    echo $msg->code, ' ', $msg->last, ' ', $msg->changePct, PHP_EOL;
+})->onIndex(function (IndexMessage $msg) {
+    echo $msg->code, ' ', $msg->last, ' ', $msg->changePct, PHP_EOL;
 })->onReconnect(function (int $attempts) use ($client) {
     // isi data yang terlewat melalui REST, misalnya $client->analysis->getStockRunningTrade(...)
 });
 
 $ws->subscribeTrades(['BBCA', 'TLKM'], minLot: 500);
 $ws->subscribeOrderbook(['BBCA']);
+$ws->subscribeStock(['BBCA']);
+$ws->subscribeIndex(['COMPOSITE', 'LQ45']);
 $ws->run();
 ```
 
@@ -416,12 +424,15 @@ $ws->run();
 |---|---|
 | `subscribeTrades(?array $codes = null, ?int $minLot = null, ?int $minValue = null)` | Running trade; `null` untuk seluruh saham, maksimal 200 kode |
 | `subscribeOrderbook(array $codes)` | Order book, wajib diisi, maksimal 20 kode |
-| `unsubscribe(string $channel, ?array $codes = null)` | Berhenti berlangganan `trades` atau `orderbook` |
+| `subscribeStock(array $codes)` | Quote saham (OHLC, volume, nilai, frekuensi, IEP/IEV), wajib diisi, maksimal 50 kode |
+| `subscribeIndex(?array $codes = null)` | Quote indeks; `null` untuk seluruh indeks, maksimal 100 kode |
+| `unsubscribe(string $channel, ?array $codes = null)` | Berhenti berlangganan `trades`, `orderbook`, `stock`, atau `index` |
 | `ping()`, `close()` | Memeriksa koneksi; menutup koneksi dan mengakhiri `run()` |
 
-Callback yang tersedia: `onConnected`, `onSubscribed`, `onTrades`, `onOrderbook`, `onPong`, `onLagged`, `onError`, `onMessage` (seluruh pesan, termasuk tipe yang belum dikenali), `onClose`, dan `onReconnect`.
+Callback yang tersedia: `onConnected`, `onSubscribed`, `onTrades`, `onOrderbook`, `onStock`, `onIndex`, `onPong`, `onLagged`, `onError`, `onMessage` (seluruh pesan, termasuk tipe yang belum dikenali), `onClose`, dan `onReconnect`.
 
-- Langganan disimpan oleh client dan dikirim setelah pesan `connected`, termasuk setelah sambung ulang. Kode saham diubah menjadi huruf besar.
+- Langganan disimpan oleh client dan dikirim setelah pesan `connected`, termasuk setelah sambung ulang. Kode saham dan indeks diubah menjadi huruf besar.
+- Field `StockMessage` dan `IndexMessage` yang belum tersedia dari bursa bernilai `null`. Kode indeks pada `IndexMessage` mengikuti penulisan bursa (misalnya `Investor33`); bandingkan dengan `strcasecmp`.
 - Sambung ulang otomatis menggunakan jeda 1, 2, 4, 8, 16, hingga 30 detik. Nonaktifkan dengan `$client->realtime(reconnect: false)`.
 - Sambung ulang tidak dilakukan setelah `close()`, kode penutupan `4400` (pesan klien tidak valid), atau penolakan handshake `401` (`AuthenticationException`) dan `403` (`PaymentRequiredException`, paket Elite tidak aktif).
 - Client juga dapat dibuat tanpa `InvezgoClient`: `new RealtimeClient($apiKey, $url)`.

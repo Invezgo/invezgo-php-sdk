@@ -22,7 +22,7 @@ use WebSocket\Middleware\CloseHandler;
 use WebSocket\Middleware\PingResponder;
 
 /**
- * Real-time running trades and order book over `wss://api.invezgo.com/ws` (Elite plan, beta).
+ * Real-time running trades, order book, stock quotes and indices over `wss://api.invezgo.com/ws` (Elite plan, beta).
  *
  * Requires the optional package `phrity/websocket` (^3.0). `run()` blocks and dispatches messages to the
  * registered callbacks until `close()` is called (typically from inside a callback) or a fatal error occurs.
@@ -45,6 +45,10 @@ final class RealtimeClient
     public const MAX_TRADE_CODES = 200;
 
     public const MAX_ORDERBOOK_CODES = 20;
+
+    public const MAX_STOCK_CODES = 50;
+
+    public const MAX_INDEX_CODES = 100;
 
     /**
      * Opens and handshakes a socket; replaceable in tests.
@@ -69,6 +73,12 @@ final class RealtimeClient
 
     /** @var list<string> */
     private array $orderbookCodes = [];
+
+    /** @var list<string> */
+    private array $stockCodes = [];
+
+    /** @var list<string>|'*'|null Desired index subscription: codes, every index, or none. */
+    private array|string|null $indexCodes = null;
 
     /** @var array<string, callable> */
     private array $handlers = [];
@@ -171,17 +181,64 @@ final class RealtimeClient
     }
 
     /**
+     * Subscribe to stock quotes (OHLC, volume, value, freq, IEP/IEV), merged with earlier codes.
+     *
+     * @param list<string> $codes
+     *
+     * @throws \InvalidArgumentException On an empty code list, empty code or more than 50 codes.
+     */
+    public function subscribeStock(array $codes): void
+    {
+        $codes = self::codes($codes);
+        $merged = array_values(array_unique([...$this->stockCodes, ...$codes]));
+        if (count($merged) > self::MAX_STOCK_CODES) {
+            throw new \InvalidArgumentException('At most ' . self::MAX_STOCK_CODES . ' stock quote codes per connection.');
+        }
+        $this->stockCodes = $merged;
+        $this->send(['op' => 'subscribe', 'channel' => 'stock', 'codes' => $codes]);
+    }
+
+    /**
+     * Subscribe to index quotes.
+     *
+     * @param list<string>|null $codes Index codes such as COMPOSITE or LQ45 (merged with earlier ones), or null
+     *                                 for every index.
+     *
+     * @throws \InvalidArgumentException On an empty code list, empty code or more than 100 codes.
+     */
+    public function subscribeIndex(?array $codes = null): void
+    {
+        $message = ['op' => 'subscribe', 'channel' => 'index'];
+        if ($codes === null) {
+            $this->indexCodes = '*';
+        } else {
+            $codes = self::codes($codes);
+            if ($this->indexCodes !== '*') {
+                $merged = array_values(array_unique([...($this->indexCodes ?? []), ...$codes]));
+                if (count($merged) > self::MAX_INDEX_CODES) {
+                    throw new \InvalidArgumentException('At most ' . self::MAX_INDEX_CODES . ' index codes per connection.');
+                }
+                $this->indexCodes = $merged;
+            }
+            $message['codes'] = $codes;
+        }
+        $this->send($message);
+    }
+
+    /**
      * Stop a subscription. Without codes the whole channel is dropped (for trades also both size filters).
      *
-     * @param string            $channel "trades" or "orderbook".
+     * @param string            $channel "trades", "orderbook", "stock" or "index".
      * @param list<string>|null $codes
      *
      * @throws \InvalidArgumentException On an unknown channel or an empty code list.
      */
     public function unsubscribe(string $channel, ?array $codes = null): void
     {
-        if ($channel !== 'trades' && $channel !== 'orderbook') {
-            throw new \InvalidArgumentException("Unknown channel \"{$channel}\"; use \"trades\" or \"orderbook\".");
+        if (!in_array($channel, ['trades', 'orderbook', 'stock', 'index'], true)) {
+            throw new \InvalidArgumentException(
+                "Unknown channel \"{$channel}\"; use \"trades\", \"orderbook\", \"stock\" or \"index\".",
+            );
         }
         $message = ['op' => 'unsubscribe', 'channel' => $channel];
         if ($codes !== null) {
@@ -190,6 +247,15 @@ final class RealtimeClient
         }
         if ($channel === 'orderbook') {
             $this->orderbookCodes = $codes === null ? [] : array_values(array_diff($this->orderbookCodes, $codes));
+        } elseif ($channel === 'stock') {
+            $this->stockCodes = $codes === null ? [] : array_values(array_diff($this->stockCodes, $codes));
+        } elseif ($channel === 'index') {
+            if ($codes === null) {
+                $this->indexCodes = null;
+            } elseif (is_array($this->indexCodes)) {
+                $left = array_values(array_diff($this->indexCodes, $codes));
+                $this->indexCodes = $left === [] ? null : $left;
+            }
         } elseif ($codes === null) {
             $this->tradeCodes = $this->minLot = $this->minValue = null;
         } elseif (is_array($this->tradeCodes)) {
@@ -240,6 +306,18 @@ final class RealtimeClient
     public function onOrderbook(callable $callback): self
     {
         return $this->on('orderbook', $callback);
+    }
+
+    /** @param callable(StockMessage): void $callback */
+    public function onStock(callable $callback): self
+    {
+        return $this->on('stock', $callback);
+    }
+
+    /** @param callable(IndexMessage): void $callback */
+    public function onIndex(callable $callback): self
+    {
+        return $this->on('index', $callback);
     }
 
     /** @param callable(): void $callback Reply to {@see self::ping()}. */
@@ -397,6 +475,12 @@ final class RealtimeClient
             case 'orderbook':
                 $this->emit('orderbook', OrderbookMessage::fromArray($message));
                 break;
+            case 'stock':
+                $this->emit('stock', StockMessage::fromArray($message));
+                break;
+            case 'index':
+                $this->emit('index', IndexMessage::fromArray($message));
+                break;
             case 'pong':
                 $this->emit('pong');
                 break;
@@ -418,6 +502,14 @@ final class RealtimeClient
         }
         if ($this->orderbookCodes !== []) {
             $this->send(['op' => 'subscribe', 'channel' => 'orderbook', 'codes' => $this->orderbookCodes]);
+        }
+        if ($this->stockCodes !== []) {
+            $this->send(['op' => 'subscribe', 'channel' => 'stock', 'codes' => $this->stockCodes]);
+        }
+        if ($this->indexCodes === '*') {
+            $this->send(['op' => 'subscribe', 'channel' => 'index']);
+        } elseif ($this->indexCodes !== null) {
+            $this->send(['op' => 'subscribe', 'channel' => 'index', 'codes' => $this->indexCodes]);
         }
     }
 
@@ -466,7 +558,7 @@ final class RealtimeClient
     }
 
     /**
-     * Trim, upper-case and dedupe stock codes.
+     * Trim, upper-case and dedupe stock or index codes.
      *
      * @param list<string> $codes
      * @return non-empty-list<string>
@@ -484,7 +576,7 @@ final class RealtimeClient
             }
         }
         if ($out === []) {
-            throw new \InvalidArgumentException('Pass at least one stock code (or null to subscribe trades for every stock).');
+            throw new \InvalidArgumentException('Pass at least one code (or null to subscribe trades/index for everything).');
         }
         return $out;
     }
