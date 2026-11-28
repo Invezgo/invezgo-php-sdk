@@ -47,6 +47,9 @@ Indonesia stock market data: lists, prices, charts, broker flow, shareholders, f
 | [`getAdvanceChart()`](#analysis-getadvancechart) | `GET /analysis/chart/stock/{code}` | Stock Chart | realtimeTtl |
 | [`getIndexChart()`](#analysis-getindexchart) | `GET /analysis/chart/index/{code}` | Index Chart | realtimeTtl |
 | [`getMultiTimeChart()`](#analysis-getmultitimechart) | `GET /analysis/chart/multi-time/{code}` | Stock/Index Multi Timeframe Chart | realtimeTtl |
+| [`getLargeOrders()`](#analysis-getlargeorders) | `GET /analysis/large-orders/{code}` | Stock Large Orders | realtimeTtl |
+| [`getCandleBrokers()`](#analysis-getcandlebrokers) | `GET /analysis/candle-brokers/{code}` | Stock Candle Brokers | ttl |
+| [`getFootprint()`](#analysis-getfootprint) | `GET /analysis/footprint/{code}` | Stock Footprint | realtimeTtl |
 | [`getIndicatorChart()`](#analysis-getindicatorchart) | `GET /analysis/chart/stock/{indicator}/{code}` | Stock Chart Indicator | ttl |
 | [`getShareholderDetail()`](#analysis-getshareholderdetail) | `GET /analysis/shareholder-detail` | Stock Shareholder 5% | ttl |
 | [`getShareholderOneDetail()`](#analysis-getshareholderonedetail) | `GET /analysis/shareholder-detail-one` | Stock Shareholder 1% | ttl |
@@ -460,6 +463,62 @@ Get multi-timeframe chart data for stocks or indexes.
 | `$timeframe` | `Timeframe\|string\|null` | tidak | Timeframe candle: `1`, `5`, `15`, `30`, `60` = menit; `D` = harian, `W` = mingguan, `M` = bulanan. Batas data historis: `1` = 3 bulan, `5` = 6 bulan, `15` = 12 bulan, lainnya 24 bulan. Opsional, default `D`; harus huruf kapital. Default: `D`. |
 
 Mengembalikan: `list<`[`MultiTimeChartItem`](#model-multitimechartitem)`>` · [contoh di Invezgo](https://invezgo.com/id/chart/BBCA)
+
+<a id="analysis-getlargeorders"></a>
+### `analysis->getLargeOrders()`
+
+**Stock Large Orders** — `GET /analysis/large-orders/{code}` · realtime
+
+```php
+$client->analysis->getLargeOrders(string $code, string|\DateTimeInterface $date): LargeOrdersResponse
+```
+
+Get large aggressive orders for one trading day: trades are grouped by the aggressor's order number (the party that triggered the trade; the side comes from `action` BUY/SELL), regular board (RG) only.
+
+| Parameter | Tipe | Wajib | Keterangan |
+|---|---|---|---|
+| `$code` | `string` | ya | Kode saham emiten yang tercatat di BEI, mis. `BBCA`. Tidak case-sensitive. Daftar kode tersedia di `/analysis/list/stock`. |
+| `$date` | `string\|\DateTimeInterface` | ya | Tanggal data (`YYYY-MM-DD`). Gunakan hari bursa; tanggal libur bursa dapat menghasilkan data kosong. |
+
+Mengembalikan: [`LargeOrdersResponse`](#model-largeordersresponse) · [contoh di Invezgo](https://invezgo.com/id/analysis/realtime/BBCA?date=2025-01-02&scope=volume&range=5)
+
+<a id="analysis-getcandlebrokers"></a>
+### `analysis->getCandleBrokers()`
+
+**Stock Candle Brokers** — `GET /analysis/candle-brokers/{code}`
+
+```php
+$client->analysis->getCandleBrokers(string $code, string|\DateTimeInterface $date, string $timefrom, string $timeto): CandleBrokersResponse
+```
+
+Get the brokers behind the trades of one time window (e.g. one candle) on a trading day: aggressor and passive sides, net per broker, and foreign lot totals. Regular board (RG) only, with a known trade side.
+
+| Parameter | Tipe | Wajib | Keterangan |
+|---|---|---|---|
+| `$code` | `string` | ya | Kode saham emiten yang tercatat di BEI, mis. `BBCA`. Tidak case-sensitive. Daftar kode tersedia di `/analysis/list/stock`. |
+| `$date` | `string\|\DateTimeInterface` | ya | Tanggal data (`YYYY-MM-DD`). Gunakan hari bursa; tanggal libur bursa dapat menghasilkan data kosong. |
+| `$timefrom` | `string` | ya | Awal jendela waktu (`HH:MM` atau `HH:MM:SS`, WIB). Harus kelipatan menit penuh (detik `:00`). |
+| `$timeto` | `string` | ya | Akhir jendela waktu inklusif (`HH:MM` atau `HH:MM:SS`, WIB). Harus berakhir di detik `:59`, tidak lebih awal dari `timefrom`, dan maksimal 1 jam dari `timefrom`. |
+
+Mengembalikan: [`CandleBrokersResponse`](#model-candlebrokersresponse) · [contoh di Invezgo](https://invezgo.com/id/analysis/realtime/BBCA?date=2025-01-02&scope=volume&range=5)
+
+<a id="analysis-getfootprint"></a>
+### `analysis->getFootprint()`
+
+**Stock Footprint** — `GET /analysis/footprint/{code}` · realtime
+
+```php
+$client->analysis->getFootprint(string $code, string|\DateTimeInterface $date): FootprintResponse
+```
+
+Get the footprint of one trading day: traded volume per minute per price, split by aggressor side (BUY = HAKA, SELL = HAKI; the side comes from `action`), regular board (RG) only.
+
+| Parameter | Tipe | Wajib | Keterangan |
+|---|---|---|---|
+| `$code` | `string` | ya | Kode saham emiten yang tercatat di BEI, mis. `BBCA`. Tidak case-sensitive. Daftar kode tersedia di `/analysis/list/stock`. |
+| `$date` | `string\|\DateTimeInterface` | ya | Tanggal data (`YYYY-MM-DD`). Gunakan hari bursa; tanggal libur bursa dapat menghasilkan data kosong. |
+
+Mengembalikan: [`FootprintResponse`](#model-footprintresponse) · [contoh di Invezgo](https://invezgo.com/id/analysis/realtime/BBCA?date=2025-01-02&scope=volume&range=5)
 
 <a id="analysis-getindicatorchart"></a>
 ### `analysis->getIndicatorChart()`
@@ -1335,7 +1394,7 @@ Get order book data for multiple stocks at once in a single request (up to 20 co
 | `$code` | `string` | ya | Daftar kode saham yang dipisahkan `\|` atau koma, mis. `BBCA\|GOTO\|TLKM`. Maksimal 20 kode (paket MAX) atau 50 kode (paket ELITE) per request. |
 | `$market` | `Market\|string\|null` | tidak | Jenis pasar: `RG` = Pasar Reguler, `NG` = Pasar Negosiasi, `TN` = Pasar Tunai. Gunakan `RG` untuk analisis pergerakan harga pada umumnya. Default `RG` bila tidak diisi. Default: `RG`. |
 | `$date` | `string\|\DateTimeInterface\|null` | tidak | Tanggal order book historis (`YYYY-MM-DD`), data tersedia mulai `2026-03-25`. Kirim bersama `time`; kosongkan keduanya untuk data realtime. |
-| `$time` | `string\|null` | tidak | Jam order book dalam WIB, format `HH:mm` dengan presisi menit. Kirim bersama `date`. |
+| `$time` | `string\|null` | tidak | Jam order book dalam WIB, format `HH:mm` atau `HH:mm:ss`; diambil snapshot terdekat pada tanggal tersebut. Kirim bersama `date`. |
 
 Mengembalikan: `list<`[`BatchOrderBookItem`](#model-batchorderbookitem)`>`
 
@@ -2950,6 +3009,123 @@ Index snapshot. During trading hours a key is omitted when it is not available; 
 | `low` | `float\|null` | Lowest price/value of the candle |
 | `close` | `float\|null` | Closing price/value of the candle |
 | `volume` | `float\|null` | Candle trading volume (shares); absent when not available |
+
+<a id="model-largeordersresponse"></a>
+### `LargeOrdersResponse`
+
+Large aggressive orders of one day (regular board)
+
+| Field | Tipe | Keterangan |
+|---|---|---|
+| `count` | `int` | Number of all aggressor orders that day, before truncation to 300 |
+| `orders` | `list<`[`LargeOrdersOrders`](#model-largeordersorders)`>` | The 300 largest orders by value, in ascending time order |
+
+<a id="model-largeordersorders"></a>
+### `LargeOrdersOrders`
+
+| Field | Tipe | Keterangan |
+|---|---|---|
+| `time` | `string` | First trade time of the order (HH:MM:SS, WIB) |
+| `time_last` | `string` | Last trade time of the order (HH:MM:SS, WIB) |
+| `side` | `string` | Aggressor side |
+| `lot` | `float` | Total lots |
+| `value` | `float` | Total value (Rupiah) |
+| `price` | `int` | Volume-weighted average price (Rupiah, rounded) |
+| `trades` | `int` | Number of trades in the order |
+| `broker` | `string` | Aggressor broker code |
+| `foreign` | `bool` | True if the aggressor is a foreign investor |
+
+<a id="model-candlebrokersresponse"></a>
+### `CandleBrokersResponse`
+
+Brokers behind the trades of one minute-aligned time window
+
+| Field | Tipe | Keterangan |
+|---|---|---|
+| `aggr_buy_lot` | `float` | Aggressive buy lots |
+| `aggr_sell_lot` | `float` | Aggressive sell lots |
+| `foreign_buy_lot` | `float` | Foreign buy lots |
+| `foreign_sell_lot` | `float` | Foreign sell lots |
+| `aggr_buy` | `list<`[`CandleBrokersAggrBuy`](#model-candlebrokersaggrbuy)`>` | Top 10 aggressive buying brokers |
+| `aggr_sell` | `list<`[`CandleBrokersAggrSell`](#model-candlebrokersaggrsell)`>` | Top 10 aggressive selling brokers |
+| `pass_buy` | `list<`[`CandleBrokersPassBuy`](#model-candlebrokerspassbuy)`>` | Top 10 passive buying brokers |
+| `pass_sell` | `list<`[`CandleBrokersPassSell`](#model-candlebrokerspasssell)`>` | Top 10 passive selling brokers |
+| `net` | `list<`[`CandleBrokersNet`](#model-candlebrokersnet)`>` | Top 10 brokers by absolute buy minus sell |
+
+<a id="model-candlebrokersaggrbuy"></a>
+### `CandleBrokersAggrBuy`
+
+| Field | Tipe | Keterangan |
+|---|---|---|
+| `broker` | `string` | Broker code |
+| `lot` | `float` | Lots |
+| `foreign` | `bool` | True if the broker traded for a foreign investor |
+
+<a id="model-candlebrokersaggrsell"></a>
+### `CandleBrokersAggrSell`
+
+| Field | Tipe | Keterangan |
+|---|---|---|
+| `broker` | `string` | Broker code |
+| `lot` | `float` | Lots |
+| `foreign` | `bool` | True if the broker traded for a foreign investor |
+
+<a id="model-candlebrokerspassbuy"></a>
+### `CandleBrokersPassBuy`
+
+| Field | Tipe | Keterangan |
+|---|---|---|
+| `broker` | `string` | Broker code |
+| `lot` | `float` | Lots |
+| `foreign` | `bool` | True if the broker traded for a foreign investor |
+
+<a id="model-candlebrokerspasssell"></a>
+### `CandleBrokersPassSell`
+
+| Field | Tipe | Keterangan |
+|---|---|---|
+| `broker` | `string` | Broker code |
+| `lot` | `float` | Lots |
+| `foreign` | `bool` | True if the broker traded for a foreign investor |
+
+<a id="model-candlebrokersnet"></a>
+### `CandleBrokersNet`
+
+| Field | Tipe | Keterangan |
+|---|---|---|
+| `broker` | `string` | Broker code |
+| `buy` | `float` | Bought lots |
+| `sell` | `float` | Sold lots |
+| `net` | `float` | Buy minus sell (lots) |
+| `foreign` | `bool` | True if the broker traded for a foreign investor |
+
+<a id="model-footprintresponse"></a>
+### `FootprintResponse`
+
+Footprint of one day: traded lots and value per minute and price, by aggressor side (regular board)
+
+| Field | Tipe | Keterangan |
+|---|---|---|
+| `minutes` | `list<`[`FootprintMinutes`](#model-footprintminutes)`>` | Minutes that have trades, ascending |
+
+<a id="model-footprintminutes"></a>
+### `FootprintMinutes`
+
+| Field | Tipe | Keterangan |
+|---|---|---|
+| `time` | `string` | Minute of the trades (HH:MM, WIB) |
+| `rows` | `list<`[`FootprintMinutesRows`](#model-footprintminutesrows)`>` | Prices within the minute, ascending |
+
+<a id="model-footprintminutesrows"></a>
+### `FootprintMinutesRows`
+
+| Field | Tipe | Keterangan |
+|---|---|---|
+| `price` | `int` | Price (Rupiah) |
+| `buy_lot` | `float` | Aggressor-buy lots |
+| `sell_lot` | `float` | Aggressor-sell lots |
+| `buy_value` | `float` | Aggressor-buy value (Rupiah) |
+| `sell_value` | `float` | Aggressor-sell value (Rupiah) |
 
 <a id="model-indicatorchartitem"></a>
 ### `IndicatorChartItem`

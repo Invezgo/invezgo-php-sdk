@@ -33,7 +33,7 @@ final class BatchResource
      *
      * Data Retrieval Modes:
      * - Realtime: Without date/time parameters - uses realtime data; falls back to the latest data when it is not available yet
-     * - Historical: With date and time parameters - retrieves order book data at that exact minute (WIB); bid and offer are empty when there is none
+     * - Historical: With date and time parameters - retrieves the order book snapshot nearest to that time on that date (WIB); bid and offer are empty when that date has no data
      *
      * Response (array, one item per code):
      * - code: Stock code (with the market suffix when market is not RG, e.g. BBCANG)
@@ -49,7 +49,7 @@ final class BatchResource
      *
      * Historical Parameters:
      * - date: Date in YYYY-MM-DD format (optional, data available from 2026-03-25)
-     * - time: WIB time in HH:MM format with minute precision (optional)
+     * - time: WIB time in HH:MM or HH:MM:SS format (optional); nearest snapshot on that date
      * - Note: fill date and time together for historical data; when only one is filled, the latest data is used
      *
      * Access & Limits:
@@ -63,7 +63,7 @@ final class BatchResource
      * @param string $code Daftar kode saham yang dipisahkan `|` atau koma, mis. `BBCA|GOTO|TLKM`. Maksimal 20 kode (paket MAX) atau 50 kode (paket ELITE) per request.
      * @param Market|string|null $market Jenis pasar: `RG` = Pasar Reguler, `NG` = Pasar Negosiasi, `TN` = Pasar Tunai. Gunakan `RG` untuk analisis pergerakan harga pada umumnya. Default `RG` bila tidak diisi. Default: `RG`.
      * @param string|\DateTimeInterface|null $date Tanggal order book historis (`YYYY-MM-DD`), data tersedia mulai `2026-03-25`. Kirim bersama `time`; kosongkan keduanya untuk data realtime.
-     * @param string|null $time Jam order book dalam WIB, format `HH:mm` dengan presisi menit. Kirim bersama `date`.
+     * @param string|null $time Jam order book dalam WIB, format `HH:mm` atau `HH:mm:ss`; diambil snapshot terdekat pada tanggal tersebut. Kirim bersama `date`.
      * @return list<BatchOrderBookItem>
      *
      * @throws InvezgoException On API, rate-limit or connection errors.

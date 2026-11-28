@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.4.0] - 2026-11-28
+
+### Added
+- `analysis.getLargeOrders` (`GET /analysis/large-orders/{code}`, realtime): the day's largest aggressor orders (up to 300) with side, lot, value, VWAP, trade count, broker and foreign flag.
+- `analysis.getFootprint` (`GET /analysis/footprint/{code}`, realtime): volume per minute per price, split by aggressor side.
+- `analysis.getCandleBrokers` (`GET /analysis/candle-brokers/{code}`): aggressive and passive brokers, net per broker and foreign lots for a time window of up to 1 hour.
+- Types: `LargeOrdersResponse`, `FootprintResponse`, `CandleBrokersResponse` and their nested models.
+
+### Changed
+- `analysis.getStockRunningTrade`: `limit` now allows at most 500 rows per page (was 1000).
+- Batch order book: `time` accepts `HH:mm:ss` as well as `HH:mm`; the nearest snapshot on that date is returned.
+
 ## [2.3.0] - 2026-11-24
 
 ### Added
